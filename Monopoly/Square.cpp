@@ -1,10 +1,7 @@
-//
-// Created by Shoham on 13/09/2024.
-//
 
 #include <utility>
 
-#include "Square.h++"
+#include "Square.hpp"
 
 
 Square::Square(std::string name) : name(std::move(name)){}

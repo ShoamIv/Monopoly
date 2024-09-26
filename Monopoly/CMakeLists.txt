@@ -3,26 +3,46 @@ project(Monopoly)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(Monopoly main.cpp
+# Main executable for Monopoly game
+add_executable(Monopoly
+        main.cpp
         Square.cpp
-        Square.h++
+        Square.hpp
         Estate.cpp
-        Estate.h++
+        Estate.hpp
         Player.cpp
-        Player.h++
+        Player.hpp
         Board.cpp
-        Board.h++
+        Board.hpp
         SpecialSquare.cpp
-        SpecialSquare.h++
-        Streets.cpp
-        Street.h++
+        SpecialSquare.hpp
+        Street.cpp
+        Street.hpp
         Infrastructure.cpp
-        Infrastructure.h++
+        Infrastructure.hpp
         ChanceCard.cpp
-        ChanceCard.h++
+        ChanceCard.hpp
         GameFlow.cpp
-        GameFlow.h++
+        GameFlow.hpp
         Dice.cpp
-        Dice.h++
-        Test.cpp
+        Dice.hpp
 )
+
+# Test executable
+add_executable(Monopoly_tests
+        Test.cpp
+        TestCounter.cpp
+        Square.cpp           # Include implementation files
+        Board.cpp            # Include implementation files
+        SpecialSquare.cpp    # Include implementation files
+        Street.cpp          # Include implementation files
+        Infrastructure.cpp    # Include implementation files
+        GameFlow.cpp         # Include implementation files
+        Player.cpp           # Include Player implementation
+        Dice.cpp             # Include Dice implementation
+        Estate.cpp           # Include Estate implementation
+)
+
+# Optionally, you can add linking to your testing framework here if needed
+# For example, if using doctest:
+# target_link_libraries(Monopoly_tests PRIVATE doctest)

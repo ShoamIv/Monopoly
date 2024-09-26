@@ -1,10 +1,9 @@
 
-#include "ChanceCard.h++"
+#include "ChanceCard.hpp"
 
 ChanceCard::ChanceCard(ChanceCard::Effect effect,int amount) : effect(effect) , amount(amount){}
 
 ChanceCard ChanceCard::DrawCard(Player &player) {
-
-    return ChanceCard(ChanceCard::Effect::AdvanceToStCharlesPlace, 0);
+    return {ChanceCard::Effect::AdvanceToStCharlesPlace, 0};
 }
 

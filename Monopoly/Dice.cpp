@@ -1,5 +1,5 @@
 
-#include "Dice.h++"
+#include "Dice.hpp"
 #include <ctime>
 
 // Constructor: Seeds the random number generator
