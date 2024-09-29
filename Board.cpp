@@ -62,37 +62,37 @@ void Board::initializeBoard() { // Renamed initializeBoard to setupBoard
     addSquare(std::make_unique<SpecialSquare>("Free Parking"));
 
     // Red Properties - Haifa
-    addSquare(std::make_unique<Street>("HaNevi'im Street", "Haifa", 5, 260, 24));
+    addSquare(std::make_unique<Street>("HaNevi'im", "Haifa", 5, 260, 24));
     addSquare(std::make_unique<SpecialSquare>("Chance"));
-    addSquare(std::make_unique<Street>("HaZohar Street", "Haifa", 5, 280, 26));
-    addSquare(std::make_unique<Street>("HaPalmach Street", "Haifa", 5, 300, 28));
+    addSquare(std::make_unique<Street>("HaZohar ", "Haifa", 5, 280, 26));
+    addSquare(std::make_unique<Street>("HaPalmach ", "Haifa", 5, 300, 28));
 
     // Railroad
     addSquare(std::make_unique<Infrastructure>("Railroad", 200));
 
     // Yellow Properties - Jerusalem
-    addSquare(std::make_unique<Street>("Ben Yehuda Street", "Jerusalem", 6, 320, 30));
+    addSquare(std::make_unique<Street>("Ben Yehuda", "Jerusalem", 6, 320, 30));
     addSquare(std::make_unique<Street>("Jaffa Street", "Jerusalem", 6, 340, 32));
     addSquare(std::make_unique<Infrastructure>("Water Company", 150));
-    addSquare(std::make_unique<Street>("King George Street", "Jerusalem", 6, 360, 34));
+    addSquare(std::make_unique<Street>("King George", "Jerusalem", 6, 360, 34));
 
     // Jail
     addSquare(std::make_unique<SpecialSquare>("Go to Jail"));
 
     // Green Properties - Tel Aviv
-    addSquare(std::make_unique<Street>("Dizengoff Street", "Tel Aviv", 7, 400, 36));
-    addSquare(std::make_unique<Street>("Rothschild Boulevard", "Tel Aviv", 7, 420, 38));
+    addSquare(std::make_unique<Street>("Dizengoff ", "Tel Aviv", 7, 400, 36));
+    addSquare(std::make_unique<Street>("Rothschild", "Tel Aviv", 7, 420, 38));
     addSquare(std::make_unique<SpecialSquare>("Chance"));
-    addSquare(std::make_unique<Street>("Hayarkon Street", "Tel Aviv", 7, 440, 40));
+    addSquare(std::make_unique<Street>("Hayarkon ", "Tel Aviv", 7, 440, 40));
 
     // Railroad & Chance
     addSquare(std::make_unique<Infrastructure>("Railroad", 200));
     addSquare(std::make_unique<SpecialSquare>("Chance"));
 
     // Blue Properties - Savion
-    addSquare(std::make_unique<Street>("Havazelet Street", "Savion", 8, 500, 50));
+    addSquare(std::make_unique<Street>("Havazelet ", "Savion", 8, 500, 50));
     addSquare(std::make_unique<SpecialSquare>("Tax"));
-    addSquare(std::make_unique<Street>("Ariel Sharon Street", "Savion", 8, 600, 60));
+    addSquare(std::make_unique<Street>("Ariel Sharon ", "Savion", 8, 600, 60));
 
 }
 
@@ -168,7 +168,7 @@ void Board::createGraphicalSquare(int i, const std::string &name, sf::Color colo
     sf::Text squareText;
     squareText.setFont(font);
     squareText.setString(name);
-    squareText.setCharacterSize(12); // Set the character size for the text
+    squareText.setCharacterSize(11); // Set the character size for the text
     squareText.setFillColor(sf::Color::Black); // Set the text color to black
 
     // Position the square based on its index (i)
@@ -194,8 +194,6 @@ void Board::createGraphicalSquare(int i, const std::string &name, sf::Color colo
 }
 
 sf::Color Board::getSquareColor(const std::unique_ptr<Square>& square) const {
-    // Assuming Street is a subclass of Square
-
     const auto* street = dynamic_cast<const Street*>(square.get());
 
     if (street) {

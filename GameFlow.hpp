@@ -24,7 +24,7 @@ class GameFlow {
     static bool checkBankruptcy(Player& player) ;                  // Checks if a player has gone bankrupt
     void handleEstate(Estate &estate, Player &player);
     void displayMessage(const std::string &message) ;
-
+    void updateMessage(const std::string &message);
 public:
 
     // Constructor: Initializes the game with a given number of players

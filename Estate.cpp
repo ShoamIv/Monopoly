@@ -24,5 +24,3 @@ Player * Estate::get_owner() {
 
 
 
-
-

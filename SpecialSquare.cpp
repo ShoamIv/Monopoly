@@ -17,7 +17,7 @@ SpecialSquare::SquareType SpecialSquare::getSquareType() const {
             {"GoToJail",    SquareType::GoToJail},
             {"Chance",      SquareType::Chance},
             {"Tax",         SquareType::Tax},
-            {"FreeParking", SquareType::FreeParking}
+            {"Free Parking", SquareType::FreeParking}
     };
     auto it = nameToType.find(name);
     if (it != nameToType.end()) {
@@ -49,7 +49,7 @@ void SpecialSquare::GotoJail(Player &player, sf::RenderWindow &window) {
     // Jail message
     sf::Text jailMessage;
     jailMessage.setFont(font);
-    jailMessage.setString("You are in jail. Pay 50 to get out or roll the dice.");
+    jailMessage.setString("You are in jail. Pay $50 to get out or roll the dice.");
     jailMessage.setCharacterSize(24);
     jailMessage.setFillColor(sf::Color::Black);
     jailMessage.setPosition(BOARD_WIDTH / 2 - jailMessage.getGlobalBounds().width / 2, BOARD_HEIGHT / 2 - 100);
@@ -62,76 +62,65 @@ void SpecialSquare::GotoJail(Player &player, sf::RenderWindow &window) {
     messageBox.setPosition(BOARD_WIDTH / 2 - 150, BOARD_HEIGHT / 2 + 100); // Center the message box
     std::string message = "Welcome to jail!";
     messageBox.setString(message); // Initial message
-
+    bool pressed=false;
     // Pay button
     Button payButton(100, 50, "Pay", font, sf::Color::Green, [&]() {
-        message = handlePay(player); // Update message after payment
+        if (player.getCash() >= 50) {
+            player.setCash(-50); // Deduct $50 for paying bail
+            message = "You paid $50 to get out of jail.";
+            player.setJail(0); // Free the player from jail
+        } else {
+            message = "You don't have enough cash to pay!";
+        }
         messageBox.setString(message); // Update GUI text box
     });
     payButton.setPosition(BOARD_WIDTH / 2 - 120, BOARD_HEIGHT / 2);
 
     // Roll button
     Button rollButton(100, 50, "Roll", font, sf::Color::Red, [&]() {
-        message = handleRoll(player); // Update message after dice roll
+        Dice dice;
+        auto [roll1, roll2] = dice.roll(); // Roll the dice
+        message = "You rolled: " + std::to_string(roll1) + " and " + std::to_string(roll2) + ". "; // Show rolled values
+
+        if (roll1 == roll2) {
+            message += "Congratulations, you are free!";
+            player.setJail(0); // Free the player from jail
+        } else {
+            message += "You remain in jail.";
+        }
         messageBox.setString(message); // Update GUI text box
     });
     rollButton.setPosition(BOARD_WIDTH / 2 + 20, BOARD_HEIGHT / 2);
 
-    // Render the jail message, buttons, and message box
-    window.clear();
-    window.draw(jailMessage);
-    window.draw(messageBox);
-    payButton.render(window);
-    rollButton.render(window);
-    window.display();
-
-    // Event loop for buttons
-    sf::Event event;
-    while (window.waitEvent(event)) {
-        if (event.type == sf::Event::Closed) {
-            window.close();
+    // Main loop for displaying the jail screen
+    while (window.isOpen()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            }
+            // Handle button clicks
+            if (payButton.handleClick(window)) {
+                pressed=true;
+                payButton.Click(); // Execute the pay action
+            }
+            if (rollButton.handleClick(window)) {
+                pressed=true;
+                rollButton.Click(); // Execute the roll action
+            }
         }
-
-        if (payButton.handleClick(window)) {
-            // Player chooses to pay, update display
-            window.clear();
-            window.draw(jailMessage);
-            window.draw(messageBox); // Update message box text
-            payButton.render(window);
-            rollButton.render(window);
-            window.display();
-        }
-
-        if (rollButton.handleClick(window)) {
-            // Player chooses to roll, update display
-            window.clear();
-            window.draw(jailMessage);
-            window.draw(messageBox); // Update message box text
-            payButton.render(window);
-            rollButton.render(window);
-            window.display();
-        }
+        if(pressed)break;
+        // Render the updated UI
+        window.clear(sf::Color::White);  // Clear the window
+        window.draw(jailMessage);
+        window.draw(messageBox);
+        payButton.render(window);
+        rollButton.render(window);
+        window.display(); // Update the display with the new state
     }
 }
 
-std::string SpecialSquare::handlePay(Player &player) {
-    int bailAmount = 50;
-    player.setCash(-bailAmount);
-    player.setJail(-(player.getJail())); // Free the player from jail
-    // Return GUI-friendly message string
-    return "You paid " + std::to_string(bailAmount) + " for bail.\nCurrent balance: " + std::to_string(player.getCash()) + ".";
-}
 
-std::string SpecialSquare::handleRoll(Player &player) {
-    Dice dice;
-    auto [roll1, roll2] = dice.roll();
-    if (roll1 == roll2) {
-        player.setJail(-(player.getJail())); // Free the player from jail
-        return "Congratulations, you rolled doubles and are free!";
-    } else {
-        return "You rolled: " + std::to_string(roll1) + " and " + std::to_string(roll2) + ".";
-    }
-}
 void SpecialSquare::Tax(Player &player, sf::RenderWindow &window) {
     // Deduct tax from player
     player.setCash(-100);
@@ -240,22 +229,25 @@ void SpecialSquare::Chance(Player &player, sf::RenderWindow &window) {
     }
 }
 
-
 void SpecialSquare::FreeParking(Player &player, sf::RenderWindow &window) {
     // Create message text
     sf::Text message;
     message.setFont(font); // Assume `font` is initialized globally or passed as a parameter
     message.setCharacterSize(24);
     message.setFillColor(sf::Color::Black);
-    message.setString(player.getName() + " landed on a Free Parking spot!\nEnjoy your break mate!");
+    message.setString(player.getName() + " landed on a Free Parking spot!\nEnjoy your break, mate!");
+
     // Center the text
     sf::FloatRect textRect = message.getLocalBounds(); // Get the bounds of the text
     message.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f); // Set origin to the center
-    message.setPosition(BOARD_WIDTH / 2, BOARD_HEIGHT / 2 - 50); // Position the title at the center-top of the
+    message.setPosition(BOARD_WIDTH / 2, BOARD_HEIGHT / 2 - 50); // Position the message at the center-top of the window
+
     // Create a button to close the message
     Button closeButton(100, 50, "OK", font, sf::Color::Green, [&]() { /* Close message */ });
+
     // Center the button below the message
-    closeButton.setPosition(BOARD_WIDTH / 2, BOARD_HEIGHT / 2-100); // Position below the text
+    closeButton.setPosition(BOARD_WIDTH / 2, BOARD_HEIGHT / 2 + 10); // Position below the text
+
     // Main loop to display the GUI
     while (window.isOpen()) {
         sf::Event event;
@@ -265,7 +257,10 @@ void SpecialSquare::FreeParking(Player &player, sf::RenderWindow &window) {
 
             // Handle button clicks
             if (event.type == sf::Event::MouseButtonPressed) {
-                closeButton.handleClick(window);
+                if (closeButton.handleClick(window)) {
+                    // Break the loop to close the message window when the button is clicked
+                    return; // Exit the function
+                }
             }
         }
 

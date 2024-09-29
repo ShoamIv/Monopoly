@@ -13,16 +13,27 @@ void Street::action(Player &player, sf::RenderWindow &window) {
 
     }
     else if(player.getName()!=this->owner->getName())
-    VisitorAction(player);
+    VisitorAction(player,window);
 }
 
-void Street::VisitorAction(Player &player) {
- if(this->Hotel){
-     int curr_rent= this->BaseRent * 6;
- }
- int curr_rent= this->BaseRent * (int)pow(2,this->Houses);
- this->owner->CollectRent(player,curr_rent);
+void Street::VisitorAction(Player &player, sf::RenderWindow &window) {
+    int curr_rent = 0;
+
+    // Calculate rent based on the presence of a hotel
+    if (this->Hotel) {
+        curr_rent = this->BaseRent * 6; // Hotel rent calculation
+    } else {
+        curr_rent = this->BaseRent * (int)pow(2, this->Houses); // Rent based on houses
+    }
+
+    // Collect rent from the player
+    this->owner->CollectRent(player, curr_rent);
+
+    // Create a message to display
+    std::string message = player.getName() + " pay up!  $" + std::to_string(curr_rent) + " to: " + this->get_owner()->getName();
+    updateMessage(message, window);
 }
+
 
 void Street::OwnerAction() {
     if(this->owner->OwnCity(this->city)){

@@ -1,7 +1,7 @@
 
 #include "GameFlow.hpp"
 #include "Street.hpp"
-//   for(int i=0; i=<numPlayers; i++){
+//   for(int i=0; i<numPlayers; i++){
 // std::string name;
 // std::cout<< "Please enter your name. \n";
 // std::getline(std::cin, name); // Use getline to read names with spaces
@@ -17,8 +17,8 @@ GameFlow::GameFlow(int numPlayers, sf::RenderWindow& window)
     }
         std::string name1="Jon";
         std::string name2="Ron";
-       players.emplace_back(name1,PlayerColor::Red,1,window);
-        players.emplace_back(name2,PlayerColor::Green,2,window);
+       players.emplace_back(name1,PlayerColor::Blue,0,window);
+        players.emplace_back(name2,PlayerColor::Green,1,window);
     // Initialize the buttons
     throwDiceButton = Button(120, 40, "Roll Dice", font, sf::Color::Yellow, []() {
         std::cout << "Throw Dice button clicked!" << std::endl;
@@ -94,15 +94,19 @@ void GameFlow::movePlayer(Player &player) {
     } else {
         auto [roll1, roll2] = dice.roll();  // Roll the dice
         int steps = roll1 + roll2;          // Sum of the dice rolls
-
-        // Update game message with dice result
-        displayMessage(player.getName() +" rolled: " +
-                       std::to_string(roll1) + " and " + std::to_string(roll2) +
-                       "\nMoving " + std::to_string(steps) + " steps.");
-
-        int currentPosition = playerLocations[player.getID()];
-        player.Move(steps, window);
+        int currentPosition = playerLocations[player.getID()]; // Ensure player.getID() returns the correct index
+        // Calculate the new position
         int newPosition = (currentPosition + steps) % 40;  // Monopoly board size is 40.
+        // Update the player's position in the playerLocations array
+        playerLocations[player.getID()] = newPosition;
+        player.Move(steps,window);
+        // Update the display message to show movement
+        std::string moveMessage = player.getName() + " rolled the dice: " + std::to_string(roll1) + ", " + std::to_string(roll2) + ".";
+        // Call to your update message function to display the move
+        updateMessage(moveMessage);
+        sf::sleep(sf::seconds(2));
+
+// Update the player's position in the playerLocations array
         playerLocations[player.getID()] = newPosition;
         if (roll1 == roll2) {
             player.increaseRepeatDouble();
@@ -165,12 +169,12 @@ bool GameFlow:: isGameOver() {
 
 
 void GameFlow::handleEstate(Estate &estate, Player &player) {
-    if(estate.get_owner()==nullptr){
-        displayMessage("Would you like to buy " + estate.getName() + " for $" + std::to_string(estate.get_cost()) + "?");
+    if (estate.get_owner() == nullptr) {
+        // Display the purchase message
         yesButton.render(window);
         noButton.render(window);
-        window.display();
-
+        std::string mess="Would you like to buy " + estate.getName() + " Estate for $" + std::to_string(estate.get_cost()) + "?";
+        updateMessage(mess);
         bool actionComplete = false;
 
         while (window.isOpen() && !actionComplete) {
@@ -184,9 +188,9 @@ void GameFlow::handleEstate(Estate &estate, Player &player) {
                     // Handle purchase
                     if (player.getCash() >= estate.get_cost()) {
                         estate.action(player,window);
-                        displayMessage(player.getName() + " bought " + estate.getName());
+                        //displayMessage(player.getName() + " bought " + estate.getName());
                     } else {
-                        displayMessage("Not enough money to buy." + estate.getName());
+                       // displayMessage("Not enough money to buy." + estate.getName());
                     }
                     actionComplete = true;
                 }
@@ -227,5 +231,24 @@ void GameFlow::displayMessage(const std::string &message) {
     window.draw(text);
     window.display();
     // Wait a few seconds so the player has time to read the message
-    sf::sleep(sf::seconds(4));
+    sf::sleep(sf::seconds(3));
+}
+
+void GameFlow::updateMessage(const std::string &message) {
+    // Create message text
+    sf::Text messageText;
+    messageText.setFont(font);
+    messageText.setCharacterSize(16);
+    messageText.setFillColor(sf::Color::Black);
+    messageText.setString(message);
+
+    // Center the text
+    sf::FloatRect textRect = messageText.getLocalBounds();
+    messageText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+    messageText.setPosition(BOARD_WIDTH / 2, BOARD_HEIGHT - 200); // Position at the bottom center of the window
+
+    // Draw the message
+    window.draw(messageText);
+    window.display();
+
 }

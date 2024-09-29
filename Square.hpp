@@ -18,7 +18,8 @@ public:
     std::string getName();
     //abstract function, all classes must implement this function:
     virtual void action(Player & player, sf::RenderWindow &window)=0;
-    virtual  ~Square();
+    static void updateMessage(const std::string &message, sf::RenderWindow &window) ;
+        virtual  ~Square();
 
 };
 

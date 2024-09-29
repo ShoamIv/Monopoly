@@ -106,7 +106,8 @@ void Player::InitializePlayer(sf::RenderWindow &window) {
     float x=BOARD_WIDTH / 2 +50;
     float y= BOARD_HEIGHT / 2 +35 * (id + 1) ;
     text.setPosition(x,y);
-
+    window.draw(PlayerInfoCircle);
+    window.display();
 }
 
 
@@ -115,6 +116,7 @@ int Player::getID() const {
 }
 void Player::DrawInfo(sf::RenderWindow &window) {
     // Check if the PlayerInfoCircle is initialized correctly
+    /*
     if (PlayerInfoCircle.getRadius() <= 0) {
         std::cerr << "Error: PlayerInfoCircle is not initialized!" << std::endl;
         return;
@@ -132,6 +134,8 @@ void Player::DrawInfo(sf::RenderWindow &window) {
         std::cerr << "Error: PlayerInfoCircle color is not set properly!" << std::endl;
         return;
     }
+     */
+    window.draw(PlayerInfoCircle);
     text.setFont(font); // Set the font
     text.setCharacterSize(16); // Text size
     text.setFillColor(PlayerInfoCircle.getFillColor()); // Text color same as token
@@ -140,9 +144,7 @@ void Player::DrawInfo(sf::RenderWindow &window) {
     float x=BOARD_WIDTH / 2 +200;
     float y= BOARD_HEIGHT / 2 + 20 * (id + 1) ;
     text.setPosition(x,y);
-    window.draw(PlayerInfoCircle);
     window.draw(text);
-
     // Optionally draw the ownership markers if applicable
   //  for (int i = 0; i < sizeMarkers; i++) {
  //       window.draw(ownershipMarkers[i]); // Draw the marker on the window
@@ -164,6 +166,8 @@ void Player::DrawInfo(sf::RenderWindow &window) {
     else {
         PlayerInfoCircle.setPosition(BOARD_WIDTH - SQUARE_SIZE+3, (curr_position- 30) * SQUARE_SIZE+5*(id+1));;
     }
+    window.draw(PlayerInfoCircle);
+    window.display();
 }
 
 
@@ -185,7 +189,6 @@ void Player::MoveTo(const std::string& location, sf::RenderWindow &window) {
             steps += 40; // Assuming there are 40 squares on the board
         }
         Move(steps,window); // Call the Move method with the calculated steps
-
         std::cout << getName() << " moves to " << location << "." << std::endl;
         curr_position=newPosition;
     } else {

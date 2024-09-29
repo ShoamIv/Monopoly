@@ -1,27 +1,31 @@
 #include "Player.hpp"
 #include "Infrastructure.hpp"
 
-
-Infrastructure::Infrastructure(const std::string& name, int cost) : Estate(name,cost){}
+Infrastructure::Infrastructure(const std::string& name, int cost) : Estate(name, cost) {}
 
 void Infrastructure::action(Player &player, sf::RenderWindow &window) {
     if (this->owner == nullptr) {
-        this->owner=&player;
-        player.setCash(-(200));
-    }
-    if (player.getName() == this->get_owner()->getName()) {
+        this->owner = &player;
+        player.IncreaseNumRailRoad();
+        player.setCash(-200);
+        std::string message=player.getName() + " bought " + this->getName() + " for $200.";
+        updateMessage(message,window);
         return;
     }
-    if (this->getName() == "Electric Company") {
-        std::cout << player.getName() << "Stepped at Electric Company Own by:" << this->owner->getName() << std::endl;
-        CompanyAction(player);
+
+    if (player.getName() == this->get_owner()->getName()) {
+        return; // Player already owns this property
     }
-    if (this->getName() == "Water Company") {
-        std::cout << player.getName() << "Stepped at Water Company Own by:" << this->owner->getName() << std::endl;
+
+    std::string companyName = this->getName();
+    std::string message= player.getName() + " stepped on " + companyName + " owned by " + this->owner->getName() + ".";
+    updateMessage(message,window);
+
+    if (companyName == "Electric Company") {
         CompanyAction(player);
-    }
-    if (this->getName() == "Railroad") {
-        std::cout << player.getName() << "Stepped at Railroad Own by:" << this->owner->getName() << std::endl;
+    } else if (companyName == "Water Company") {
+        CompanyAction(player);
+    } else if (companyName == "Railroad") {
         RailroadAction(player);
     }
 }
@@ -29,10 +33,11 @@ void Infrastructure::action(Player &player, sf::RenderWindow &window) {
 void Infrastructure::CompanyAction(Player &player) {
     int diceRoll = player.getRecentDice();
     int curr_rent = 10 * diceRoll;
-    this->owner->CollectRent(player,curr_rent);
+    this->owner->CollectRent(player, curr_rent);
 }
 
 void Infrastructure::RailroadAction(Player &player) {
-  int curr_rent=50*this->owner->getRailRoad();
-  this->owner->CollectRent(player,curr_rent);
+    int curr_rent = 50 * this->owner->getRailRoad();
+    this->owner->CollectRent(player, curr_rent);
 }
+

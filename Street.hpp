@@ -10,7 +10,7 @@ class Street : public Estate {
     int Houses=0;                      //Number of Houses at the street.
     bool Hotel=false;
     void OwnerAction();
-    void VisitorAction(Player &player);
+    void VisitorAction(Player &player,sf::RenderWindow &window);
 
 public:
     Street(const std::string& name,std::string  city,int color,int cost,int BaseRent);
