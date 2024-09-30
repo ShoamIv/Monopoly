@@ -6,6 +6,7 @@
 // std::cout<< "Please enter your name. \n";
 // std::getline(std::cin, name); // Use getline to read names with spaces
 //playerLocations[i] = 0;
+
 GameFlow::GameFlow(int numPlayers, sf::RenderWindow& window)
         : board(Board::getBoard()), window(window), currentPlayerIndex(0),
           throwDiceButton(200, 50, "Throw Dice", font, sf::Color::Green, [this]() {
@@ -18,7 +19,7 @@ GameFlow::GameFlow(int numPlayers, sf::RenderWindow& window)
         std::string name1="Jon";
         std::string name2="Ron";
        players.emplace_back(name1,PlayerColor::Blue,0,window);
-        players.emplace_back(name2,PlayerColor::Green,1,window);
+       players.emplace_back(name2,PlayerColor::Green,1,window);
     // Initialize the buttons
     throwDiceButton = Button(120, 40, "Roll Dice", font, sf::Color::Yellow, []() {
         std::cout << "Throw Dice button clicked!" << std::endl;
@@ -37,7 +38,6 @@ GameFlow::GameFlow(int numPlayers, sf::RenderWindow& window)
     yesButton.setPosition(BOARD_WIDTH / 2, BOARD_HEIGHT / 2+100);
     noButton.setPosition(BOARD_WIDTH / 2-50, BOARD_HEIGHT / 2 +100);
     board->Draw(window);     // Draw the board
-
     // Start the game (assuming this handles additional game setup)
     startGame();
    // }
@@ -51,7 +51,8 @@ void GameFlow::startGame() {
 
 void GameFlow::playTurn(Player &player) {
     bool turnActive = true;  // Track if the turn is still active
-    // Event loop for the player's turn
+    int doubleRolls = 0;     // Track the number of doubles rolled in the turn
+
     while (turnActive) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -59,80 +60,96 @@ void GameFlow::playTurn(Player &player) {
             if (event.type == sf::Event::Closed) {
                 window.close();
                 turnActive = false;
-                break;
+                return;
             }
 
             // Handle mouse click event
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
                 // Check if the "Throw Dice" button is clicked
                 if (throwDiceButton.isHovered(window)) {
-                    // Call the button's click action
-                    throwDiceButton.handleClick(window);
-                    movePlayer(player);  // Move player based on dice roll
-                    handleSquare(player);   // Handle what happens after landing on the square
-                    turnActive = false;     // End the turn after the move
+                    auto [roll1, roll2] = dice.roll(); // Roll the dice
+                    std::string moveMessage = player.getName() + " rolled the dice: " + std::to_string(roll1) + ", " + std::to_string(roll2) + ".";
+                    std::cout << moveMessage << std::endl;
+                    updateMessage(moveMessage);
+                    window.display();
+                    std::this_thread::sleep_for(std::chrono::seconds(2));
+
+                    // If the player rolled a double
+                    if (roll1 == roll2) {
+                        doubleRolls++;
+                        if (doubleRolls == 3) {
+                            // Player goes to jail after 3 consecutive doubles
+                            player.resetRepeatDouble();
+                            displayMessage(player.getName() + " has rolled 3 doubles in a row. Time to go to jail!");
+                            player.MoveTo("Jail", window);
+                            playerLocations.at(player.getID()) = 10;
+                            handleSquare(player);  // Handle landing on jail
+                            turnActive = false;    // End the player's turn
+                        } else {
+                            // Move player and let them roll again
+                            movePlayer(player, roll1 + roll2);
+                            handleSquare(player);
+                            updateMessage(player.getName() + " gets an extra turn for rolling a double!");
+                        }
+                    } else {
+                        // Normal turn, move player and end the turn
+                        doubleRolls = 0;  // Reset double rolls count
+                        movePlayer(player, roll1 + roll2);
+                        handleSquare(player);
+                        turnActive = false;  // End the turn
+                    }
                 }
             }
         }
-        // Render GUI and buttons
+
+        // Clear the window and render the GUI and buttons
         window.clear(sf::Color::White);  // Clear the window
         updateGUI();                     // Update and render the game GUI
         throwDiceButton.render(window);  // Render the "Throw Dice" button
         window.display();                // Display the updated window
     }
-    // Move to the next player after turn ends
+
+    // Move to the next player after the turn ends
+    checkBankruptcy();
     currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
 }
 
-void GameFlow::movePlayer(Player &player) {
-    if (player.getRepeatDouble() == 3) {
-        player.resetRepeatDouble();
-        displayMessage(player.getName() +" has Double 3 times in a row, Time to go to Jail!;");
-        player.MoveTo("Jail", window);
-        playerLocations.at(player.getID()) = 10;
-        handleSquare(player);
-    } else {
-        auto [roll1, roll2] = dice.roll();  // Roll the dice
-        int steps = roll1 + roll2;          // Sum of the dice rolls
-        int currentPosition = playerLocations[player.getID()]; // Ensure player.getID() returns the correct index
-        // Calculate the new position
-        int newPosition = (currentPosition + steps) % 40;  // Monopoly board size is 40.
-        // Update the player's position in the playerLocations array
-        playerLocations[player.getID()] = newPosition;
-        player.Move(steps,window);
-        // Update the display message to show movement
-        std::string moveMessage = player.getName() + " rolled the dice: " + std::to_string(roll1) + ", " + std::to_string(roll2) + ".";
-        // Call to your update message function to display the move
-        updateMessage(moveMessage);
-        sf::sleep(sf::seconds(2));
-
-// Update the player's position in the playerLocations array
-        playerLocations[player.getID()] = newPosition;
-        if (roll1 == roll2) {
-            player.increaseRepeatDouble();
-            handleSquare(player);
-            playTurn(player);
-        }
-    }
+void GameFlow::movePlayer(Player &player, int steps) {
+    int currentPosition = playerLocations[player.getID()]; // Get current position
+    int newPosition = (currentPosition + steps) % 40;      // Monopoly board size is 40
+    playerLocations[player.getID()] = newPosition;         // Update position
+    player.Move(steps, window);                            // Move the player visually
+    window.display();
 }
 
 void GameFlow::handleSquare(Player &player) {
-    Square* currentSquare = board->getSquares().at(playerLocations.at(player.getID())).get();
-    // Check if the square is an Estate
-    auto* estate = dynamic_cast<Estate*>(currentSquare);
-    if(estate){
-        handleEstate(*estate,player);
-    }else{
-        currentSquare->action(player,window);
-        if(player.getChanceDraw()){
-            ChanceCard::DrawCard(player,this->players,this->window);
-            player.setChanceDraw(false);
-        }
+    // Retrieve the vector of squares from the board
+    const std::vector<std::unique_ptr<Square>>& squares = board->getSquares();
+    // Get the player's current location
+    int playerLocation = playerLocations.at(player.getID());
+    // Retrieve the current square the player is on
+    Square* currentSquare = squares.at(playerLocation).get();
+    if(auto* streetSquare = dynamic_cast<Street*>(currentSquare)){
+        streetSquare->isUpgradable(squares);
+    }
+    // Perform the action for the square
+    currentSquare->action(player, window);
+
+    if (player.getChanceDraw()) {
+        // Draw a chance card and handle its effect
+        ChanceCard::DrawCard(player, this->players, this->window);
+        player.setChanceDraw(false);
+        // Update the player's location after drawing the chance card (if applicable)
+        playerLocations[player.getID()] = player.getPosition();
     }
 }
 
-bool GameFlow::checkBankruptcy(Player &player) {
-
+bool GameFlow::checkBankruptcy() {
+    for(const Player&  player : this->players){
+            if(player.getBankruptcy()){
+                removePlayer(player.getID());
+            }
+    }
     return false;
 }
 
@@ -141,18 +158,15 @@ void GameFlow::updateGUI() {
     // Draw the board and all players
     board->Draw(window);
     // Draw each player based on their updated locations
-    for (const auto& [playerID, position] : playerLocations) {
-        Player& player = players[playerID]; // Assuming you have a vector of Player objects
+    //for (const auto& [playerID, position] : playerLocations) {
+      for(Player player : players){
+      //  Player& player = players[playerID];
         player.DrawInfo(window); // Draw the player's token at the correct position
    }
 }
 
 std::vector<Player> &GameFlow::getPlayers() {
     return this->players;
-}
-;
-sf::RenderWindow &GameFlow::getWindow() {
-    return this->window;
 }
 
 int GameFlow::getTurn() const {
@@ -164,50 +178,11 @@ bool GameFlow:: isGameOver() {
         if(p.getCash()>=4000)
             return true;
     }
+    if(players.size()==1){
+        return true;
+    }
     return false;
 }
-
-
-void GameFlow::handleEstate(Estate &estate, Player &player) {
-    if (estate.get_owner() == nullptr) {
-        // Display the purchase message
-        yesButton.render(window);
-        noButton.render(window);
-        std::string mess="Would you like to buy " + estate.getName() + " Estate for $" + std::to_string(estate.get_cost()) + "?";
-        updateMessage(mess);
-        bool actionComplete = false;
-
-        while (window.isOpen() && !actionComplete) {
-            sf::Event event;
-            while (window.pollEvent(event)) {
-                if (event.type == sf::Event::Closed) {
-                    window.close();
-                }
-
-                if (yesButton.handleClick(window)) {
-                    // Handle purchase
-                    if (player.getCash() >= estate.get_cost()) {
-                        estate.action(player,window);
-                        //displayMessage(player.getName() + " bought " + estate.getName());
-                    } else {
-                       // displayMessage("Not enough money to buy." + estate.getName());
-                    }
-                    actionComplete = true;
-                }
-
-                if (noButton.handleClick(window)) {
-                    // Player chose not to buy the property
-                    displayMessage(player.getName() + " chose not to buy " + estate.getName());
-                    actionComplete = true;
-                }
-            }
-        }
-    }
-    else{
-        estate.action(player,window);
-    }
-}
-
 
 void GameFlow::displayMessage(const std::string &message) {
     if (!font.loadFromFile("Lato-BlackItalic.ttf")) {
@@ -231,7 +206,7 @@ void GameFlow::displayMessage(const std::string &message) {
     window.draw(text);
     window.display();
     // Wait a few seconds so the player has time to read the message
-    sf::sleep(sf::seconds(3));
+   // sf::sleep(sf::seconds(3));
 }
 
 void GameFlow::updateMessage(const std::string &message) {
@@ -241,14 +216,23 @@ void GameFlow::updateMessage(const std::string &message) {
     messageText.setCharacterSize(16);
     messageText.setFillColor(sf::Color::Black);
     messageText.setString(message);
-
     // Center the text
     sf::FloatRect textRect = messageText.getLocalBounds();
     messageText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
     messageText.setPosition(BOARD_WIDTH / 2, BOARD_HEIGHT - 200); // Position at the bottom center of the window
-
     // Draw the message
     window.draw(messageText);
-    window.display();
 
 }
+
+void GameFlow::removePlayer(int playerID) {
+    // Remove player from the list of active players
+    players.erase(std::remove_if(players.begin(), players.end(),
+                                 [playerID](const Player& player) {
+                                     return player.getID() == playerID;
+                                 }), players.end());
+    // Remove player's location
+    playerLocations.erase(playerID);
+    updateMessage("Player " + std::to_string(playerID) + " is bankrupt and has been removed from the game.");
+}
+

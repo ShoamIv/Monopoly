@@ -20,33 +20,21 @@ class GameFlow {
     int currentPlayerIndex;                 // Tracks the current player's turn
     std::unordered_map<int, int> playerLocations;
     void handleSquare(Player& player);                  // Handles landing.
-    void movePlayer(Player& player);             // Handles the player's dice roll and movement
-    static bool checkBankruptcy(Player& player) ;                  // Checks if a player has gone bankrupt
-    void handleEstate(Estate &estate, Player &player);
+    void movePlayer(Player& player,int steps);             // Handles the player's dice roll and movement
+    bool checkBankruptcy() ;                  // Checks if a player has gone bankrupt
     void displayMessage(const std::string &message) ;
     void updateMessage(const std::string &message);
 public:
-
-    // Constructor: Initializes the game with a given number of players
-    GameFlow(int numPlayers,sf::RenderWindow& window);
-
-    // Starts the game and handles the main game loop
-    void startGame();
-
-    // Handles a single player's turn
-    void playTurn(Player& player);
-
+    GameFlow(int numPlayers,sf::RenderWindow& window);         // Constructor: Initializes the game with a given number of players
+    void startGame();              // Starts the game and handles the main game loop
+    void playTurn(Player& player);         // Handles a single player's turn
     int getTurn() const;
-
     void updateGUI() ;
-
     std::vector<Player> & getPlayers();
-
     sf::RenderWindow& getWindow();
-
-
     // Checks if the game has ended
      bool isGameOver() ;
+
     // Ends the game
    // void endGame();
 
@@ -58,6 +46,8 @@ public:
     Button yesButton;
     Button noButton;
     sf::Text gameMessageText;
+
+    void removePlayer(int playerID);
 };
 
 

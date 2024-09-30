@@ -123,7 +123,7 @@ void Board::Draw(sf::RenderWindow &window) {
     for (int i = 0; i < board.size(); ++i) {
         std::string name = board[i]->getName(); // Assuming you have a method to get the name
         sf::Color color = getSquareColor(board[i]);
-        createGraphicalSquare(i, name, color, window);
+        DrawSquare(i, name, color, window);
     }
 }
 
@@ -152,18 +152,16 @@ void Board::drawTitle(sf::RenderWindow &window) {
 
     }
 
-void Board::createGraphicalSquare(int i, const std::string &name, sf::Color color, sf::RenderWindow &window) {
+void Board::DrawSquare(int i, const std::string &name, sf::Color color, sf::RenderWindow &window) {
 
     // Create a rectangle shape for the square
     sf::RectangleShape squareShape(sf::Vector2f(SQUARE_SIZE, SQUARE_SIZE));
     squareShape.setFillColor(color); // Set the color of the square
-
     // Load font for the square text
     sf::Font font;
     if (!font.loadFromFile("Lato-BlackItalic.ttf")) { // Make sure the font file exists in your working directory
         throw std::runtime_error("Failed to load font");
     }
-
     // Create a text object for the square name
     sf::Text squareText;
     squareText.setFont(font);
@@ -172,11 +170,11 @@ void Board::createGraphicalSquare(int i, const std::string &name, sf::Color colo
     squareText.setFillColor(sf::Color::Black); // Set the text color to black
 
     // Position the square based on its index (i)
-    if (i < 10) { // Top row
+    if (i < 11) { // Top row
         squareShape.setPosition(BOARD_WIDTH - (i + 1) * SQUARE_SIZE + 3, BOARD_HEIGHT - SQUARE_SIZE);
     } else if (i < 20) { // Right column
         squareShape.setPosition(0, BOARD_HEIGHT - (i - 9) * SQUARE_SIZE);
-    } else if (i < 30) { // Bottom row
+    } else if (i < 31) { // Bottom row
         squareShape.setPosition((i - 20) * SQUARE_SIZE, 0);
     } else { // Left column
         squareShape.setPosition(BOARD_WIDTH - SQUARE_SIZE + 3, (i - 30) * SQUARE_SIZE - 2);

@@ -31,17 +31,10 @@ class Player {
     int dice{};                        //recent diceRoll.
     int NumOfRailRoad=0;
     int getOutFromJail=0;
-    int repeatDouble=0;
-    bool DrawChance=false;                    //indicate if to draw a chance
-
+    bool Bankruptcy=false;
     std::vector<Estate*> Estates;       //Player Estates
 
-    /*
-     * list of cities the player own
-     * a Player that Owns entire city-> able to require houses.
-     */
-    std::vector<std::string> CityOwner;
-    //GUI
+    //GUI Related fields and Methods:
     sf::Text text;
     sf::Font font;
     void InitializePlayer(sf::RenderWindow &window);
@@ -49,41 +42,40 @@ class Player {
 
 public:
     explicit Player(std::string &name,PlayerColor color,int id,sf::RenderWindow& window);
-    //setters
+
+    //setters:
     void setCash(int amount);
     void setJail(int time);
-    void setRecentDice(int dice_);
     void IncreaseNumRailRoad();
-    void AddCity(const std::string& city);
-    void AddEstate(Estate * estate);
     void setChanceDraw(bool flag);
     void IncreaseJailCard();
- // void setPosition(int dice);
+    void setBankruptcy();
 
- //getters
+ //getters:
     std::string getName();
-    [[nodiscard]] std::string getColor() const;
     [[nodiscard]] int getCash() const;
     [[nodiscard]] int getJail() const;
     [[nodiscard]] int getRecentDice() const;
     [[nodiscard]] int getRailRoad() const;
-    int getRepeatDouble() const;
-
-    bool getChanceDraw() const;
+    int getPosition() const;
     int getID() const;
     int getJailCard() const;
+    bool getChanceDraw() const;
+    bool getBankruptcy() const;
     sf::CircleShape & getCircle();
+    std::vector<Estate*> getEstates();
 
-    //Square* getPosition();
-
-    //
+    //IN-Game Methods:
     void CollectRent(Player &p,int rent);
-    bool OwnCity(const std::string& City);
     void Move(int steps,sf::RenderWindow &window);
-    void DrawInfo(sf::RenderWindow &window);
     void MoveTo(const std::string& location,sf::RenderWindow &window);
-    void increaseRepeatDouble();
     void resetRepeatDouble();
+    void setJailCard(int num);
+    void CollectBankruptcy(Player & BrokePlayer);
+
+    //GUI Update Method:
+    void DrawInfo(sf::RenderWindow &window);
+
 };
 
 

@@ -4,12 +4,16 @@
 #include <string>
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include <thread>
 
 class Player;
 class Square {
 
 protected:
     std::string name;
+    static sf::Text messageText;
+    static sf::Font font;
+
 public:
     explicit Square(const std::string &name);
     //setters
@@ -21,6 +25,7 @@ public:
     static void updateMessage(const std::string &message, sf::RenderWindow &window) ;
         virtual  ~Square();
 
+    static void LoadFont(sf::Font &font);
 };
 
 

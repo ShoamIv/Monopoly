@@ -20,8 +20,6 @@ class SpecialSquare: public Square{
      void Tax(Player & player,sf::RenderWindow &window);
      void FreeParking(Player & player,sf::RenderWindow &window);
     sf::Font font;
-    std::string handlePay(Player &player);
-    std::string handleRoll(Player &player);
 public:
     enum class SquareType {
         GoToJail,

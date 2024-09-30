@@ -21,11 +21,11 @@ class Board {
 public:
     void Draw(sf::RenderWindow &window);
     void drawTitle(sf::RenderWindow &window) ;
-    void createGraphicalSquare(int i, const std::string &name, sf::Color color, sf::RenderWindow &window);
+    void DrawSquare(int i, const std::string &name, sf::Color color, sf::RenderWindow &window);
     static Board * getBoard();
     Button getButton();
     int getSquareIndex(const std::string &location) const;
-        std::vector<std::unique_ptr<Square>>& getSquares();
+    std::vector<std::unique_ptr<Square>>& getSquares();
     ~Board();
     // Delete copy constructor and assignment operator
     Board(const Board&) = delete;

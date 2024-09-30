@@ -11,7 +11,6 @@ void ChanceCard::ApplyEffect(Player &player, std::vector<Player> &Players, sf::R
     switch (effect) {
         case Effect::AdvanceToGo:
             player.MoveTo("Go", window); // Move to Go and handle collecting money
-            player.setCash(200);
             message = player.getName() + " collects $200 for advancing to Go.";
             break;
 
@@ -68,7 +67,9 @@ void ChanceCard::ApplyEffect(Player &player, std::vector<Player> &Players, sf::R
             message = "No effect for this card.";
             break;
     }
-
+    if(player.getCash()<0){
+        player.setBankruptcy();
+    }
     // Display the message in the GUI
     Square::updateMessage(message, window);
 }
@@ -77,14 +78,10 @@ ChanceCard ChanceCard::DrawCard(Player &player, std::vector<Player> &Players, sf
     // For simplicity, using a random number generator to pick a card effect
     static std::default_random_engine generator;
     std::uniform_int_distribution<int> distribution(0, 15); // 16 effects in total
-
     int cardIndex = distribution(generator);
     auto drawnEffect = static_cast<Effect>(cardIndex);
-
     ChanceCard drawnCard(drawnEffect); // The amount can be 0 for effects that do not require it
-
     // Apply the drawn effect to the player
     drawnCard.ApplyEffect(player,Players,window);
-
     return drawnCard;
 }

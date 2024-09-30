@@ -21,8 +21,6 @@ class ChanceCard {
     int amount=0;
     void ApplyEffect(Player &player, std::vector<Player> &Players, sf::RenderWindow &window);
     explicit ChanceCard(Effect effect); // Constructor
-
-
 public:
      static ChanceCard DrawCard(Player &player, std::vector<Player> &Players, sf::RenderWindow &window);
 

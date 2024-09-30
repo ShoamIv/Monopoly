@@ -1,16 +1,18 @@
 #include <utility>
 #include "Player.hpp"
 #include "Board.hpp"
+#include "Street.hpp"
+
 static int playerCount=0;
 std::map<PlayerColor, sf::Color> PlayersColor = {
-        {PlayerColor::Red, sf::Color::Red},
-        {PlayerColor::Blue, sf::Color::Blue},
-        {PlayerColor::Green, sf::Color::Green},
-        {PlayerColor::Yellow, sf::Color::Yellow},
-        {PlayerColor::Orange, sf::Color(255, 165, 0)},  // Orange
-        {PlayerColor::Purple, sf::Color(128, 0, 128)},  // Purple
-        {PlayerColor::Brown, sf::Color(165, 42, 42)},    // Brown
-        {PlayerColor::Magenta, sf::Color(255, 0, 255)}   // Magenta
+        {PlayerColor::Red, sf::Color(139, 0, 0)},        // Dark Red (different from Ariel's Red)
+        {PlayerColor::Blue, sf::Color(0, 191, 255)},     // Deep Sky Blue (different from Jerusalem's Blue)
+        {PlayerColor::Green, sf::Color(34, 139, 34)},    // Forest Green (different from Haifa's Green)
+        {PlayerColor::Yellow, sf::Color(255, 215, 0)},   // Gold (different from Netanya's Yellow)
+        {PlayerColor::Orange, sf::Color(255, 140, 0)},   // Dark Orange (different from Kiryat Ata's Orange)
+        {PlayerColor::Purple, sf::Color(128, 0, 128)},   // Purple (distinct from any city color)
+        {PlayerColor::Brown, sf::Color(139, 69, 19)},    // Saddle Brown
+        {PlayerColor::Magenta, sf::Color(255, 0, 255)}   // Magenta (distinct)
 };
 
 Player::Player(std::string &name, PlayerColor color, int id, sf::RenderWindow& window)
@@ -43,14 +45,10 @@ int Player::getRecentDice() const {
     return this->dice;
 }
 
-void Player::setRecentDice(int dice_) {
- this->dice=dice_;
-}
 
 void Player::CollectRent(Player &p,int rent) {
  this->cash+=rent;
  p.cash-=rent;
- std::cout<<p.getName()<< "Paid Rent at amount of:" << rent << "to: " <<this->getName()<<std::endl;
 }
 
 int Player::getRailRoad() const {
@@ -61,22 +59,6 @@ void Player::IncreaseNumRailRoad() {
     this->NumOfRailRoad++;
 }
 
-void Player::AddCity(const std::string& city) {
- this->CityOwner.emplace_back(city);
-}
-
-bool Player::OwnCity(const std::string& City) {
-    for(const std::string& city : CityOwner){
-        if(City==city){
-            return true;
-        }
-    }
-    return false;
-}
-
-void Player::AddEstate(Estate *estate) {
-    this->Estates.emplace_back(estate);
-}
 
 void Player::InitializePlayer(sf::RenderWindow &window) {
 
@@ -115,68 +97,55 @@ int Player::getID() const {
     return this->id;
 }
 void Player::DrawInfo(sf::RenderWindow &window) {
-    // Check if the PlayerInfoCircle is initialized correctly
-    /*
-    if (PlayerInfoCircle.getRadius() <= 0) {
-        std::cerr << "Error: PlayerInfoCircle is not initialized!" << std::endl;
-        return;
-    }
-    auto pos = PlayerInfoCircle.getPosition();
-    if (pos.x < 0 || pos.y < 0) {
-        std::cerr << "Error: PlayerInfoCircle position is invalid! Position: ("
-                  << pos.x << ", " << pos.y << ")" << std::endl;
-        return;
-    }
-
-// Check if color is set correctly
-    auto fillColor = PlayerInfoCircle.getFillColor();
-    if (fillColor.a == 0) { // Fully transparent
-        std::cerr << "Error: PlayerInfoCircle color is not set properly!" << std::endl;
-        return;
-    }
-     */
+    // Draw the player's info circle
     window.draw(PlayerInfoCircle);
+    // Set up the text for displaying player info (name and cash)
     text.setFont(font); // Set the font
     text.setCharacterSize(16); // Text size
     text.setFillColor(PlayerInfoCircle.getFillColor()); // Text color same as token
     text.setString(name + ": $" + std::to_string(cash)); // Set the initial string
+
     // Update the player info (name and money) position
-    float x=BOARD_WIDTH / 2 +200;
-    float y= BOARD_HEIGHT / 2 + 20 * (id + 1) ;
-    text.setPosition(x,y);
-    window.draw(text);
-    // Optionally draw the ownership markers if applicable
-  //  for (int i = 0; i < sizeMarkers; i++) {
- //       window.draw(ownershipMarkers[i]); // Draw the marker on the window
- //   }
+    float x = BOARD_WIDTH / 2 + 200; // X position
+    float y = BOARD_HEIGHT / 2 + 20 * (id + 1); // Y position
+    text.setPosition(x, y);
+    window.draw(text); // Draw player info
+    // Now draw the player's estates
+    float estateY = y + 20; // Starting position for estate info
+    for (const auto& estate : Estates) {
+        // Create a string for each estate (assuming Estate has a getName() method)
+        std::string estateInfo = estate->getName() + " ($" + std::to_string(estate->get_cost()) + ")";
+        text.setString(estateInfo); // Update the text for the estate
+        text.setPosition(x, estateY); // Update position for each estate
+        window.draw(text); // Draw estate info
+            // Check if the estate is a Street and draw houses/hotel if it is
+                estate->drawHousesAndHotel(window); // Draw houses and hotel for the street
+
+        estateY += 20; // Increment Y position for the next estate
+    }
 }
 
     void Player::Move(int steps, sf::RenderWindow &window) {
+    int old_pos=curr_position;
     curr_position = (curr_position+steps)%40;
     // Set the token's position based on its index (i)
-    if (curr_position < 10) {
+    if (curr_position < 11) {
         PlayerInfoCircle.setPosition(BOARD_WIDTH +10-(curr_position + 1) * SQUARE_SIZE+3, BOARD_HEIGHT +10- SQUARE_SIZE+5*(id+1));
     }
     else if (curr_position < 20) {
         PlayerInfoCircle.setPosition(20, BOARD_HEIGHT - (curr_position - 9) * SQUARE_SIZE+5*(id+1));
     }
-    else if (curr_position < 30) {
+    else if (curr_position < 31) {
         PlayerInfoCircle.setPosition((curr_position - 20) * SQUARE_SIZE+10, 5*(id+1));
     }
     else {
         PlayerInfoCircle.setPosition(BOARD_WIDTH - SQUARE_SIZE+3, (curr_position- 30) * SQUARE_SIZE+5*(id+1));;
     }
+    if(old_pos>curr_position){
+        this->cash+=200;
+    }
     window.draw(PlayerInfoCircle);
     window.display();
-}
-
-
-bool Player::getChanceDraw() const {
-return DrawChance;
-}
-
-void Player::setChanceDraw(bool flag) {
-this->DrawChance=flag;
 }
 
 void Player::MoveTo(const std::string& location, sf::RenderWindow &window) {
@@ -208,12 +177,34 @@ sf::CircleShape& Player::getCircle() {
     return this->PlayerInfoCircle;
 }
 
-int Player::getRepeatDouble() const {
-     return repeatDouble;
+
+void Player::setBankruptcy() {
+    this->Bankruptcy=true;
 }
-void Player::increaseRepeatDouble() {
-    repeatDouble++;
+
+bool Player::getBankruptcy() const {
+    return this->Bankruptcy;
 }
-void Player::resetRepeatDouble() {
-    repeatDouble=0;
+
+void Player::CollectBankruptcy(Player & BrokePlayer) {
+    this->setCash(BrokePlayer.getCash());
+      for(Estate * estate : BrokePlayer.getEstates()){
+          estate->set_owner(this);
+      }
+      NumOfRailRoad+=BrokePlayer.getRailRoad();
+    getOutFromJail+=BrokePlayer.getOutFromJail;
 }
+
+std::vector<Estate *> Player::getEstates() {
+    return this->Estates;
+}
+
+void Player::setJailCard(int num) {
+    this->getOutFromJail+=num;
+}
+
+int Player::getPosition() const {
+    return this->curr_position;
+}
+
+
