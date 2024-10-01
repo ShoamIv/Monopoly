@@ -170,9 +170,11 @@ int GameFlow::getTurn() const {
 bool GameFlow:: isGameOver() {
     for(const Player& p : players){
         if(p.getCash()>=4000)
+        players.clear();
             return true;
     }
     if(players.size()==1){
+            players.clear();
         return true;
     }
     return false;
