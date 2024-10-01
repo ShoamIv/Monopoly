@@ -2,7 +2,7 @@
 #ifndef MONOPOLY_ESTATE_HPP
 #define MONOPOLY_ESTATE_HPP
 #include "Square.hpp"
-#include "Button.hpp"
+#include "button.hpp"
 class Estate : public Square{
     Button yesButton;
     Button noButton;

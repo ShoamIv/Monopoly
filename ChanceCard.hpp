@@ -4,6 +4,10 @@
 #include <vector>
 #include <string>
 #include "Player.hpp"
+/**
+ * This header defines common header for Chance Effects that may be apply on a player.
+ * each effect has detailed explanation.
+ */
 class ChanceCard {
     enum class Effect {
         AdvanceToGo,                   // 1. Advance to Go (Collect $200)

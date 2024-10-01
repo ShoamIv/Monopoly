@@ -1,18 +1,17 @@
-/*
- * Special squares header ////
- * ///
- * ///
- * ///
- * //
- * add document.
- */
+
 
 #ifndef MONOPOLY_SPECIALSQUARE_HPP
 #define MONOPOLY_SPECIALSQUARE_HPP
 #include "Player.hpp"
 #include "ChanceCard.hpp"
 #include "Button.hpp"
-
+/**
+ * Special squares header
+ *
+ * This header defines the SpecialSquare class, which represents special types of squares
+ * on the Monopoly board, such as Jail, GoToJail, Chance, Tax, and FreeParking.
+ * Each square has a specific action when a player lands on it.
+ */
 
 class SpecialSquare: public Square{
      void GotoJail(Player & player,sf::RenderWindow &window);

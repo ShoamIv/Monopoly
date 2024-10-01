@@ -5,6 +5,13 @@
 #include <vector>
 #include "Estate.hpp"
 #include "Dice.hpp"
+/**
+ * Player header file
+ *
+ * This header defines the Player class, which represents a player in the Monopoly game.
+ * The class handles player-specific details such as their name, current position,
+ * amount of cash, estates they own, and other gameplay-related properties.
+ */
 class Board;
 const float BOARD_WIDTH = 800;
 const float BOARD_HEIGHT = 800;
@@ -44,7 +51,6 @@ class Player {
 
 public:
     explicit Player(std::string &name,PlayerColor color,int id,sf::RenderWindow& window);
-
     //setters:
     void setCash(int amount);
     void setJail(int time);
@@ -54,7 +60,7 @@ public:
     void setBankruptcy();
     void setJailCard(int num);
     void AddEstate(Estate &estate);
-
+    void setRecentDice(int diceroll);
     //getters:
     std::string getName();
     [[nodiscard]] int getCash() const;

@@ -36,7 +36,7 @@ public:
     sf::RenderWindow& getWindow();
     // Checks if the game has ended
      bool isGameOver() ;
-
+    ~GameFlow();
     // Ends the game
    // void endGame();
     // Resets the game for a new session

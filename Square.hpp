@@ -5,6 +5,15 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <thread>
+/**
+ * @class Square
+ * @brief The abstract base class representing a square on the Monopoly board.
+ *
+ * The `Square` class defines the common interface and properties for any type of square in the Monopoly game,
+ * such as Streets, Chance squares, or other special board spaces. It contains common attributes such as
+ * the square's name and position on the board, and mandates the implementation of the `action` method for
+ * all derived classes, which will define the specific behavior when a player lands on that square.
+ */
 
 class Player;
 class Square {

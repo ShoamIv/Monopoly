@@ -6,7 +6,13 @@
 #include "Estate.hpp"
 #include "Button.hpp"
 #include "SpecialSquare.hpp"
-
+/**
+ * @class Board
+ * @brief The `Board` class represents the game board in Monopoly, managing all squares and their graphical representation.
+ * The `Board` class is a singleton responsible for initializing, managing, and drawing the Monopoly game board.
+ * It holds all the squares (properties, special squares, etc.), handles interactions between players and the board,
+ * and draws the squares and board components on the window.
+ */
 class Board {
     Board();
     static Board * ptr;

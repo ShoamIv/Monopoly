@@ -1,25 +1,36 @@
 
 #include "GameFlow.hpp"
 #include "Street.hpp"
-//   for(int i=0; i<numPlayers; i++){
-// std::string name;
-// std::cout<< "Please enter your name. \n";
-// std::getline(std::cin, name); // Use getline to read names with spaces
-//playerLocations[i] = 0;
+/**
+ * @class GameFlow
+ * @brief Manages the overall flow of the Monopoly game, including player turns, dice rolls,
+ *        player movement, handling square actions, and managing game state.
+ *
+ * This class is responsible for controlling the main aspects of the Monopoly game. It maintains
+ * the state of the game board, the players, and their positions. The GameFlow class handles
+ * player interactions such as rolling dice, moving to squares, upgrading properties, and checking
+ * for game-over conditions like bankruptcy. It also manages the graphical user interface (GUI)
+ * elements like buttons and messages displayed to the players.
+ *
+ * @details
+ * Key responsibilities of GameFlow include:
+ * - Managing turns and player actions.
+ * - Updating and rendering the game board and player movements.
+ * - Handling special actions such as rolling doubles and sending players to jail.
+ * - Checking for game-ending conditions like bankruptcy or a player reaching a target amount of cash.
+ * - Displaying player estates and other in-game messages to the screen.
+ *
+ */
 
 GameFlow::GameFlow(int numPlayers, sf::RenderWindow& window)
         : board(Board::getBoard()), window(window), currentPlayerIndex(0),
-          throwDiceButton(200, 50, "Throw Dice", font, sf::Color::Green, [this]() {
+          throwDiceButton(200, 50, "Throw Dice", font, sf::Color::Green, []() {
               std::cout << "Dice rolled!" << std::endl;
           }) {
     if (!font.loadFromFile("Lato-BlackItalic.ttf")) {
         std::cerr << "Error: Could not load font!" << std::endl;
         return; // Early exit if font loading fails
     }
-        std::string name1="Jon";
-        std::string name2="Ron";
-       players.emplace_back(name1,PlayerColor::Blue,0,window);
-       players.emplace_back(name2,PlayerColor::Green,1,window);
     // Initialize the buttons
     ButtonInit();
     gameMessageText.setFont(font);
@@ -27,6 +38,16 @@ GameFlow::GameFlow(int numPlayers, sf::RenderWindow& window)
     gameMessageText.setFillColor(sf::Color::Black);
     gameMessageText.setPosition(100, 100); // Set its position on the screen
     board->Draw(window);     // Draw the board
+    while(numPlayers<2 || numPlayers>8){
+        std::cout<<"please insert numbers of players again, between 2-8 players.\n";
+        std::cin>>numPlayers;
+    }
+    for(int i=0; i<numPlayers; i++){
+        std::string name;
+        std::cout<< "Please enter your name. \n";
+        std::getline(std::cin, name);
+        playerLocations[i] = 0;
+    }
     // Start the game (assuming this handles additional game setup)
     startGame();
    // }
@@ -170,11 +191,9 @@ int GameFlow::getTurn() const {
 bool GameFlow:: isGameOver() {
     for(const Player& p : players){
         if(p.getCash()>=4000)
-        players.clear();
             return true;
     }
     if(players.size()==1){
-            players.clear();
         return true;
     }
     return false;
@@ -266,4 +285,9 @@ void GameFlow::displayEstates() {
         // Pause to allow viewing each player's estates
         sf::sleep(sf::seconds(3));
     }
+}
+GameFlow::~GameFlow() {
+    // This destructor is called when GameFlow goes out of scope
+    players.clear(); // Clear the players
+    // If you have dynamically allocated memory for players or other resources, ensure to delete them here
 }

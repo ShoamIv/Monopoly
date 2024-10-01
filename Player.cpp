@@ -49,6 +49,7 @@ int Player::getRecentDice() const {
 void Player::CollectRent(Player &p,int rent) {
  this->cash+=rent;
  p.cash-=rent;
+
 }
 
 int Player::getRailRoad() const {
@@ -92,7 +93,6 @@ void Player::InitializePlayer(sf::RenderWindow &window) {
     window.display();
 }
 
-
 int Player::getID() const {
     return this->id;
 }
@@ -117,7 +117,7 @@ void Player::DrawInfo(sf::RenderWindow &window) {
     }
 }
 
-    void Player::Move(int steps, sf::RenderWindow &window) {
+void Player::Move(int steps, sf::RenderWindow &window) {
     int old_pos=curr_position;
     curr_position = (curr_position+steps)%40;
     // Set the token's position based on its index (i)
@@ -233,5 +233,12 @@ int Player::getPositionIndex(const std::string& location) {
     int newPosition = board->getSquareIndex(location);
     return newPosition;
 }
+
+void Player::setRecentDice(int diceroll) {
+    this->dice=diceroll;
+}
+
+
+
 
 

@@ -56,6 +56,9 @@ void Estate::BuyEstate(Player &player, sf::RenderWindow &window) {
                     this->owner = &player;
                     player.setCash(-cost); // Deduct cost
                     message = player.getName() + " bought: " + name;
+                    if(this->getName()=="Railroad"){
+                        player.IncreaseNumRailRoad();
+                    }
                     player.AddEstate(*this);
                     updateMessage(message, window);
                 } else {

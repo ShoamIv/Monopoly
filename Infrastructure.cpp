@@ -45,7 +45,6 @@ void Infrastructure::CompanyAction(Player &player, sf::RenderWindow &window) {
 
 void Infrastructure::RailroadAction(Player &player, sf::RenderWindow &window) {
     std::string message;
-    this->owner->IncreaseNumRailRoad();
     int curr_rent = 50 * this->owner->getRailRoad();
     if(player.getCash()<curr_rent){
         player.setBankruptcy();
