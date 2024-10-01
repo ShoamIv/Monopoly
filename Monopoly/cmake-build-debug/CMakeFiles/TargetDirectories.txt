@@ -1,3 +1,0 @@
-C:/Users/Shoham/CLionProjects/Monopoly/cmake-build-debug/CMakeFiles/Monopoly.dir
-C:/Users/Shoham/CLionProjects/Monopoly/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/Shoham/CLionProjects/Monopoly/cmake-build-debug/CMakeFiles/rebuild_cache.dir
