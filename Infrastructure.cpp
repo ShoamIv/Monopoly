@@ -61,13 +61,29 @@ void Infrastructure::RailroadAction(Player &player, sf::RenderWindow &window) {
 }
 
 void Infrastructure::drawHousesAndHotel(sf::RenderWindow &window) {
-    if (owner!= nullptr) { // If there is a house
-        sf::CircleShape houseShape(10); // Circle representing the house
-        houseShape.setFillColor(sf::Color::Green); // House color
-        // Set the position relative to the square position
-        houseShape.setPosition(50 + 1 * 30, 50);  // Adjust the position for each house
-        window.draw(houseShape); // Draw the house
-        }
+    if(owner==nullptr)return;
+    sf::Text estateText;
+    estateText.setFont(font); // Ensure you have loaded the font
+    estateText.setString(owner ? owner->getName() + " Infrastructure " : ""); // Check if there is an owner
+    estateText.setCharacterSize(12); // Set the size of the text    estateMarker.setFillColor(owner->getColor()); // Set the color based on the owner's color
+    estateText.setFillColor(owner->getColor());
+
+    int curr_position = this->owner->getPositionIndex(this->getName());
+    // Positioning the estate marker based on the current position on the board
+    if (curr_position < 11) { // Bottom row (0 to 10)
+        estateText.setPosition(BOARD_WIDTH + 10 - (curr_position + 1) * SQUARE_SIZE + 3, BOARD_HEIGHT - SQUARE_SIZE + 5 * (owner->getID() + 1)-20);
     }
+    else if (curr_position < 20) { // Left side (11 to 19)
+        estateText.setPosition(80, BOARD_HEIGHT - (curr_position - 10) * SQUARE_SIZE + 5 * (owner->getID() + 1)-50);
+    }
+    else if (curr_position < 31) { // Top row (20 to 30)
+        estateText.setPosition((curr_position - 20) * SQUARE_SIZE + 10, 5 * (owner->getID() + 1)+70);
+    }
+    else { // Right side (31 to 39)
+        estateText.setPosition(BOARD_WIDTH - SQUARE_SIZE - 60, (curr_position - 30) * SQUARE_SIZE + 5 * (owner->getID() + 1));
+    }
+    window.draw(estateText);
+
+}
 
 

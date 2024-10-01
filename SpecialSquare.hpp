@@ -16,12 +16,13 @@
 
 class SpecialSquare: public Square{
      void GotoJail(Player & player,sf::RenderWindow &window);
+     void Jail(Player & player,sf::RenderWindow &window);
      void Chance(Player & player,sf::RenderWindow &window);
      void Tax(Player & player,sf::RenderWindow &window);
      void FreeParking(Player & player,sf::RenderWindow &window);
-    sf::Font font;
 public:
     enum class SquareType {
+        Jail,
         GoToJail,
         Chance,
         Tax,

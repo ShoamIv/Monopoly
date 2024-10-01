@@ -21,22 +21,11 @@ GameFlow::GameFlow(int numPlayers, sf::RenderWindow& window)
        players.emplace_back(name1,PlayerColor::Blue,0,window);
        players.emplace_back(name2,PlayerColor::Green,1,window);
     // Initialize the buttons
-    throwDiceButton = Button(120, 40, "Roll Dice", font, sf::Color::Yellow, []() {
-        std::cout << "Throw Dice button clicked!" << std::endl;
-    });
-    yesButton = Button(60, 40, "Yes", font, sf::Color::Green, []() {
-        std::cout << "Yes button clicked!" << std::endl;
-    });
-    noButton = Button(60, 40, "No", font, sf::Color::Red, []() {
-        std::cout << "No button clicked!" << std::endl;
-    });
+    ButtonInit();
     gameMessageText.setFont(font);
     gameMessageText.setCharacterSize(24);
     gameMessageText.setFillColor(sf::Color::Black);
     gameMessageText.setPosition(100, 100); // Set its position on the screen
-    throwDiceButton.setPosition(BOARD_WIDTH / 2 - 50, BOARD_HEIGHT / 2 + 10);
-    yesButton.setPosition(BOARD_WIDTH / 2, BOARD_HEIGHT / 2+100);
-    noButton.setPosition(BOARD_WIDTH / 2-50, BOARD_HEIGHT / 2 +100);
     board->Draw(window);     // Draw the board
     // Start the game (assuming this handles additional game setup)
     startGame();
@@ -99,16 +88,23 @@ void GameFlow::playTurn(Player &player) {
                         turnActive = false;  // End the turn
                     }
                 }
+                // Check if the "View Estates" button is clicked
+                if (viewEstatesButton.isHovered(window)) {
+                    std::cout << "View Estates button clicked!" << std::endl;
+                    displayEstates(); // Call function to display player estates
+                }
             }
         }
 
         // Clear the window and render the GUI and buttons
         window.clear(sf::Color::White);  // Clear the window
         updateGUI();                     // Update and render the game GUI
-        throwDiceButton.render(window);  // Render the "Throw Dice" button
-        window.display();                // Display the updated window
+        // Render the "Throw Dice" and "View Estates" buttons
+        throwDiceButton.render(window);
+        viewEstatesButton.render(window);
+        // Ensure the window is updated and displayed
+        window.display();
     }
-
     // Move to the next player after the turn ends
     checkBankruptcy();
     currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
@@ -134,7 +130,6 @@ void GameFlow::handleSquare(Player &player) {
     }
     // Perform the action for the square
     currentSquare->action(player, window);
-
     if (player.getChanceDraw()) {
         // Draw a chance card and handle its effect
         ChanceCard::DrawCard(player, this->players, this->window);
@@ -157,10 +152,9 @@ void GameFlow::updateGUI() {
     window.clear(sf::Color::White);  // Clear the window
     // Draw the board and all players
     board->Draw(window);
+    viewEstatesButton.render(window);
     // Draw each player based on their updated locations
-    //for (const auto& [playerID, position] : playerLocations) {
       for(Player player : players){
-      //  Player& player = players[playerID];
         player.DrawInfo(window); // Draw the player's token at the correct position
    }
 }
@@ -185,6 +179,7 @@ bool GameFlow:: isGameOver() {
 }
 
 void GameFlow::displayMessage(const std::string &message) {
+
     if (!font.loadFromFile("Lato-BlackItalic.ttf")) {
         std::cerr << "Error: Could not load font Lato-BlackItalic.ttf!" << std::endl;
         return;
@@ -205,8 +200,6 @@ void GameFlow::displayMessage(const std::string &message) {
     window.clear(sf::Color::White);
     window.draw(text);
     window.display();
-    // Wait a few seconds so the player has time to read the message
-   // sf::sleep(sf::seconds(3));
 }
 
 void GameFlow::updateMessage(const std::string &message) {
@@ -236,3 +229,39 @@ void GameFlow::removePlayer(int playerID) {
     updateMessage("Player " + std::to_string(playerID) + " is bankrupt and has been removed from the game.");
 }
 
+void GameFlow::ButtonInit() {
+    throwDiceButton = Button(120, 40, "Roll Dice", font, sf::Color::Yellow, []() {
+        std::cout << "Throw Dice button clicked!" << std::endl;
+    });
+    yesButton = Button(60, 40, "Yes", font, sf::Color::Green, []() {
+        std::cout << "Yes button clicked!" << std::endl;
+    });
+    noButton = Button(60, 40, "No", font, sf::Color::Red, []() {
+        std::cout << "No button clicked!" << std::endl;
+    });
+    viewEstatesButton = Button(140, 40, "View Estates", font, sf::Color::Cyan, [this]() {
+        std::cout << "View Estates button clicked!" << std::endl;
+    });
+    throwDiceButton.setPosition(BOARD_WIDTH / 2 - 50, BOARD_HEIGHT / 2 + 10);
+    yesButton.setPosition(BOARD_WIDTH / 2, BOARD_HEIGHT / 2+100);
+    noButton.setPosition(BOARD_WIDTH / 2-50, BOARD_HEIGHT / 2 +100);
+    viewEstatesButton.setPosition(BOARD_WIDTH / 2-50, BOARD_HEIGHT / 2 -200);
+}
+
+void GameFlow::displayEstates() {
+    for (Player player : players) {
+        std::string estates = player.getName() + "'s Estates:\n";
+        // loop through player's owned properties and append to the estates string
+        for (const auto &property: player.getEstates()) {
+            estates += property->getName() + "\n";
+        }
+        // If player has no estates, display a message indicating that
+        if (player.getEstates().empty()) {
+            estates = player.getName() + " owns no properties.";
+        }
+        // Use the displayMessage method to show the list of estates
+        displayMessage(estates);
+        // Pause to allow viewing each player's estates
+        sf::sleep(sf::seconds(3));
+    }
+}

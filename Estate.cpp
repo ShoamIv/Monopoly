@@ -18,9 +18,8 @@ int Estate::get_cost() const {
 Player * Estate::get_owner() {
     return this->owner;
 }
+
 void Estate::BuyEstate(Player &player, sf::RenderWindow &window) {
-    sf::Font font;
-    LoadFont(font);
 
     // Initialize buttons
     yesButton = Button(60, 40, "Yes", font, sf::Color::Green, [&]() {
@@ -57,6 +56,7 @@ void Estate::BuyEstate(Player &player, sf::RenderWindow &window) {
                     this->owner = &player;
                     player.setCash(-cost); // Deduct cost
                     message = player.getName() + " bought: " + name;
+                    player.AddEstate(*this);
                     updateMessage(message, window);
                 } else {
                     message = "Not enough money to buy: " + name;

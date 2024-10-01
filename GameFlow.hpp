@@ -24,6 +24,8 @@ class GameFlow {
     bool checkBankruptcy() ;                  // Checks if a player has gone bankrupt
     void displayMessage(const std::string &message) ;
     void updateMessage(const std::string &message);
+    void ButtonInit();
+
 public:
     GameFlow(int numPlayers,sf::RenderWindow& window);         // Constructor: Initializes the game with a given number of players
     void startGame();              // Starts the game and handles the main game loop
@@ -37,17 +39,15 @@ public:
 
     // Ends the game
    // void endGame();
-
     // Resets the game for a new session
   // void resetGame();
-
-
     Button throwDiceButton;
     Button yesButton;
     Button noButton;
     sf::Text gameMessageText;
-
+    Button viewEstatesButton;
     void removePlayer(int playerID);
+    void displayEstates();
 };
 
 

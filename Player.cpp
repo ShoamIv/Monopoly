@@ -13,6 +13,7 @@ std::map<PlayerColor, sf::Color> PlayersColor = {
         {PlayerColor::Purple, sf::Color(128, 0, 128)},   // Purple (distinct from any city color)
         {PlayerColor::Brown, sf::Color(139, 69, 19)},    // Saddle Brown
         {PlayerColor::Magenta, sf::Color(255, 0, 255)}   // Magenta (distinct)
+
 };
 
 Player::Player(std::string &name, PlayerColor color, int id, sf::RenderWindow& window)
@@ -44,7 +45,6 @@ int Player::getJail() const {
 int Player::getRecentDice() const {
     return this->dice;
 }
-
 
 void Player::CollectRent(Player &p,int rent) {
  this->cash+=rent;
@@ -111,17 +111,9 @@ void Player::DrawInfo(sf::RenderWindow &window) {
     text.setPosition(x, y);
     window.draw(text); // Draw player info
     // Now draw the player's estates
-    float estateY = y + 20; // Starting position for estate info
     for (const auto& estate : Estates) {
-        // Create a string for each estate (assuming Estate has a getName() method)
-        std::string estateInfo = estate->getName() + " ($" + std::to_string(estate->get_cost()) + ")";
-        text.setString(estateInfo); // Update the text for the estate
-        text.setPosition(x, estateY); // Update position for each estate
-        window.draw(text); // Draw estate info
-            // Check if the estate is a Street and draw houses/hotel if it is
+            // Check if the estate is a Street and draw street text, houses/hotel if it is
                 estate->drawHousesAndHotel(window); // Draw houses and hotel for the street
-
-        estateY += 20; // Increment Y position for the next estate
     }
 }
 
@@ -149,8 +141,8 @@ void Player::DrawInfo(sf::RenderWindow &window) {
 }
 
 void Player::MoveTo(const std::string& location, sf::RenderWindow &window) {
-    Board * board=Board::getBoard();
-    int newPosition = board->getSquareIndex(location); // Get the index of the target square
+
+    int newPosition = getPositionIndex(location);
     if (newPosition != -1) { // Assuming -1 means the location was not found
         int steps = newPosition - curr_position; // Calculate steps to move
         // Handle wrapping around the board (if needed)
@@ -205,6 +197,41 @@ void Player::setJailCard(int num) {
 
 int Player::getPosition() const {
     return this->curr_position;
+}
+
+void Player::setChanceDraw(bool flag) {
+    this->ChanceDraw=flag;
+}
+
+bool Player::getChanceDraw() const {
+    return this->ChanceDraw;
+}
+
+void Player::resetRepeatDouble() {
+    DoubleCount=0;
+}
+
+void Player::AddEstate(Estate &estate) {
+    this->Estates.emplace_back(&estate);
+}
+
+const sf::Color& Player::getColor() {
+    // Attempt to find the player color in the map
+    auto it = PlayersColor.find(this->color); // 'color' should be of type PlayerColor
+    if (it != PlayersColor.end()) {
+        return it->second; // Return the corresponding sf::Color
+    } else {
+        // Handle error: color not found (this shouldn't normally happen)
+        std::cerr << "Invalid player color: " << static_cast<int>(this->color) << std::endl;
+        static sf::Color defaultColor = sf::Color::Black; // Return a static default color
+        return defaultColor;
+    }
+}
+
+int Player::getPositionIndex(const std::string& location) {
+    Board * board=Board::getBoard();
+    int newPosition = board->getSquareIndex(location);
+    return newPosition;
 }
 
 

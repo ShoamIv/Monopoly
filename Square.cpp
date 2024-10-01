@@ -11,6 +11,10 @@ void Square::setName(std::string _name) {
     this->name = std::move(_name);
 }
 
+void Square:: setPosition(const sf::Vector2f pos) {
+    this->position=pos;
+}
+
 std::string Square::getName() {
     return this->name;
 }
@@ -20,7 +24,7 @@ Square::~Square() = default;
 void Square::updateMessage(const std::string &message, sf::RenderWindow &window) {
     // Create a font object
     // Load the font from a file
-    LoadFont(font);
+    LoadFont();
     // Create message text
     messageText.setFont(font);
     messageText.setCharacterSize(16);
@@ -33,11 +37,10 @@ void Square::updateMessage(const std::string &message, sf::RenderWindow &window)
     // Draw the message
     window.draw(messageText);
     window.display();
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 }
 
-void Square:: LoadFont(sf::Font& font)
+void Square:: LoadFont()
 {
     // Load the font from a file
     if (!font.loadFromFile("Lato-BlackItalic.ttf")) {

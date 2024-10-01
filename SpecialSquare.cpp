@@ -27,6 +27,9 @@ SpecialSquare::SquareType SpecialSquare::getSquareType() const {
 
 void SpecialSquare::action(Player & player, sf::RenderWindow &window) {
     switch (getSquareType()) {
+        case SquareType::Jail:
+            Jail(player,window);
+            break;
         case SquareType::GoToJail:
             GotoJail(player,window);
             break;
@@ -46,6 +49,35 @@ void SpecialSquare::action(Player & player, sf::RenderWindow &window) {
 }
 
 void SpecialSquare::GotoJail(Player &player, sf::RenderWindow &window) {
+    player.MoveTo("Jail",window);
+    Jail(player,window);
+}
+
+void SpecialSquare::Tax(Player &player, sf::RenderWindow &window) {
+    std::string messageStr;
+    if(player.getCash()<100){
+        messageStr= player.getName()+" Bankrupt, better Luck next time!";
+        player.setBankruptcy();
+        updateMessage(messageStr,window);
+    }
+    else {
+        player.setCash(-100);            // Deduct tax from the player's account
+        messageStr = "Tax of $100 has been deducted from your account.\n"
+                     "Your current balance is $" + std::to_string(player.getCash()) + ".";
+        updateMessage(messageStr, window);
+        }
+    }
+
+void SpecialSquare::Chance(Player &player, sf::RenderWindow &window) {
+    player.setChanceDraw(true);
+}
+
+void SpecialSquare::FreeParking(Player &player, sf::RenderWindow &window) {
+    std::string messageStr = " landed on a Free Parking spot!\nEnjoy your break, mate!";
+    updateMessage(messageStr, window);
+}
+
+void SpecialSquare::Jail(Player &player, sf::RenderWindow &window) {
     if(player.getJail()==0) {
         player.setJail(3);
         if (player.getJailCard() > 0) {
@@ -55,9 +87,9 @@ void SpecialSquare::GotoJail(Player &player, sf::RenderWindow &window) {
             return;
         }
     }
-    Button payButton(60, 40, "Pay $50", font, sf::Color::Green, [&]() {
+    Button payButton(30, 30, "Pay $50", font, sf::Color::Green, [&]() {
         if (player.getCash() >= 50) {
-            player.setCash(-50); // Deduct $50 for paying bail
+            player.setCash( -50); // Deduct $50 for paying bail
             updateMessage("You paid $50 to get out of jail.", window);
             player.setJail(-(player.getJail()));   // Free the player from jail
         } else {
@@ -67,7 +99,7 @@ void SpecialSquare::GotoJail(Player &player, sf::RenderWindow &window) {
         }
     });
 
-    Button rollButton(60, 40, "Roll Dice", font, sf::Color::Blue, [&]() {
+    Button rollButton(30, 30, "Roll Dice", font, sf::Color::Blue, [&]() {
         Dice dice;
         auto [roll1, roll2] = dice.roll(); // Roll the dice
         std::string message = "You rolled: " + std::to_string(roll1) + " and " + std::to_string(roll2) + ". ";
@@ -110,28 +142,5 @@ void SpecialSquare::GotoJail(Player &player, sf::RenderWindow &window) {
     }
 }
 
-void SpecialSquare::Tax(Player &player, sf::RenderWindow &window) {
-    std::string messageStr;
-    if(player.getCash()<100){
-        messageStr= player.getName()+" Bankrupt, better Luck next time!";
-        player.setBankruptcy();
-        updateMessage(messageStr,window);
-    }
-    else {
-        player.setCash(-100);            // Deduct tax from the player's account
-        messageStr = "Tax of $100 has been deducted from your account.\n"
-                     "Your current balance is $" + std::to_string(player.getCash()) + ".";
-        updateMessage(messageStr, window);
-        }
-    }
-
-void SpecialSquare::Chance(Player &player, sf::RenderWindow &window) {
-    player.setChanceDraw(true);
-}
-
-void SpecialSquare::FreeParking(Player &player, sf::RenderWindow &window) {
-    std::string messageStr = " landed on a Free Parking spot!\nEnjoy your break, mate!";
-    updateMessage(messageStr, window);
-}
 
 SpecialSquare::~SpecialSquare() = default;

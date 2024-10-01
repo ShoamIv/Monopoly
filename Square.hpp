@@ -11,6 +11,7 @@ class Square {
 
 protected:
     std::string name;
+    sf::Vector2f position;
     static sf::Text messageText;
     static sf::Font font;
 
@@ -18,6 +19,7 @@ public:
     explicit Square(const std::string &name);
     //setters
     void setName(std::string _type);
+    void setPosition(sf::Vector2f pos);
     //getters
     std::string getName();
     //abstract function, all classes must implement this function:
@@ -25,7 +27,7 @@ public:
     static void updateMessage(const std::string &message, sf::RenderWindow &window) ;
         virtual  ~Square();
 
-    static void LoadFont(sf::Font &font);
+    static void LoadFont();
 };
 
 

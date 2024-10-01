@@ -10,6 +10,7 @@ void Street::action(Player &player, sf::RenderWindow &window) {
     if(this->owner== nullptr){
         this->BuyEstate(player,window);
     }
+
     else if(player.getName()==this->owner->getName()){
         OwnerAction(player,window);
     }
@@ -41,82 +42,135 @@ void Street::VisitorAction(Player &player, sf::RenderWindow &window) {
         message = player.getName() + " pay up!  $" + std::to_string(curr_rent) + " to: " + this->get_owner()->getName();
         updateMessage(message, window);
 
-     }
+      }
     }
 
 void Street::OwnerAction(Player &player, sf::RenderWindow &window) {
     // Check if the street is upgradable
     if (upgradable) {
+        std::string message;
+
         // Check if the maximum number of houses (4) is reached
         if (HouseCount == 4) {
-            std::string message = "You can build a hotel on " + name + ". Would you like to proceed? ";
+            message = "You can build a hotel on " + name + ". Would you like to proceed?";
+        } else {
+            message = "You can build a house on " + name + ". Would you like to proceed?";
+        }
+
+        // Create "Build" button
+        Button buildButton(80, 40, "Build", font, sf::Color::Green, []() {
+            std::cout << "Build button clicked!" << std::endl;
+        });
+
+        // Create "Decline" button
+        Button declineButton(80, 40, "Decline", font, sf::Color::Red, []() {
+            std::cout << "Decline button clicked!" << std::endl;
+        });
+
+        // Set positions for the "Build" and "Decline" buttons
+        buildButton.setPosition(BOARD_WIDTH / 2 - 100, BOARD_HEIGHT / 2 + 100);  // Adjust positioning
+        declineButton.setPosition(BOARD_WIDTH / 2 + 100, BOARD_HEIGHT / 2 + 100);  // Adjust positioning
+
+        // Wait for user input
+        bool decisionMade = false;
+        bool buildSelected = false;
+
+        while (!decisionMade) {
+            sf::Event event;
+            while (window.pollEvent(event)) {
+                if (event.type == sf::Event::Closed) {
+                    window.close();
+                    return;
+                }
+                if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+                    if (buildButton.isHovered(window)) {
+                        decisionMade = true;
+                        buildSelected = true;  // Build option selected
+                    }
+                    if (declineButton.isHovered(window)) {
+                        decisionMade = true;
+                        buildSelected = false;  // Decline option selected
+                    }
+                }
+            }
+
+            // Display the message and render both buttons
+            buildButton.render(window);
+            declineButton.render(window);
             updateMessage(message, window);
-            // Create hotel option button (you may implement a Button class)
-            Button buildHotelButton(60, 40, "Build Hotel",font, sf::Color::Green, [&]() {
-                if (player.getCash() >= HotelCost) { // Assume hotelCost is defined
+
+            // Display everything
+        }
+
+        // Handle player's decision
+        if (buildSelected) {
+            // If the player clicked the "Build" button
+            if (HouseCount == 4) {
+                if (player.getCash() >= HotelCost) {
                     player.setCash(-HotelCost);
-                    Hotel = true;            // Indicate hotel is built
-                    // Update the GUI and display success message
-                    updateMessage("Hotel built on " + name + "!", window);
+                    Hotel = true;  // Build the hotel
                 } else {
                     updateMessage("Not enough money to build a hotel.", window);
                 }
-            });
-            // Render hotel button
-            buildHotelButton.setPosition(BOARD_WIDTH / 2, BOARD_HEIGHT / 2 + 100);
-            buildHotelButton.render(window);
-            window.display();
-        } else {
-            // Show house offer in GUI
-            std::string message = "You can build a house on " + name + ". Would you like to proceed?";
-            updateMessage(message, window);
-
-            // Create house option button (you may implement a Button class)
-            Button buildHouseButton(60, 40, "Build House", font, sf::Color::Green, [&]() {
-                if (player.getCash() >= HouseCount) { // Assume houseCost is defined
+            } else {
+                if (player.getCash() >= HouseCost) {
                     player.setCash(-HouseCost);
-                    HouseCount++;
-                    // Update the GUI and display success message
-                    updateMessage("House built on " + name + "!", window);
+                    HouseCount++;  // Build the house
                 } else {
                     updateMessage("Not enough money to build a house.", window);
                 }
-            });
-
-            // Render house button
-            buildHouseButton.setPosition(BOARD_WIDTH / 2, BOARD_HEIGHT / 2 + 100);
-            buildHouseButton.render(window);
-            window.display();
+            }
+        } else {
+            // If the player clicked the "Decline" button
+            updateMessage("You have declined to build on " + name + ".", window);
         }
-    } else {
-       // updateMessage("You cannot build at the moment on this property.", window);
     }
 }
+
 
 std::string Street::getCity() const {
     return this->city;
 }
-void Street::drawHousesAndHotel(sf::RenderWindow &window)  {
-    // Drawing houses as circles
-    float houseRadius = 10.0f;  // Size of the house (circle)
-    sf::CircleShape house(houseRadius);
-    house.setFillColor(sf::Color::Green);
-    for (int i = 0; i < this->HouseCount; i++) {
-        house.setPosition(50 + i * 30, 50);  // Adjust the position for each house
-        window.draw(house);
-    }
 
-    // Drawing a hotel as a triangle
-    if (this->Hotel) {
-        sf::ConvexShape hotel;
-        hotel.setPointCount(3);  // Triangle shape
-        hotel.setPoint(0, sf::Vector2f(100, 30));  // Top
-        hotel.setPoint(1, sf::Vector2f(120, 70));  // Bottom right
-        hotel.setPoint(2, sf::Vector2f(80, 70));   // Bottom left
-        hotel.setFillColor(sf::Color::Red);
-        window.draw(hotel);
+void Street::drawHousesAndHotel(sf::RenderWindow &window)  {
+    if(owner== nullptr)return;
+    sf::Text estateText;
+    estateText.setFont(font); // Ensure you have loaded the font
+    estateText.setString(owner ? owner->getName() + " Street " : ""); // Check if there is an owner
+    estateText.setCharacterSize(12); // Set the size of the text    estateMarker.setFillColor(owner->getColor()); // Set the color based on the owner's color
+    estateText.setFillColor(owner->getColor());
+
+    int curr_position = this->owner->getPositionIndex(this->getName());
+    // Positioning the estate marker based on the current position on the board
+    if (curr_position < 11) { // Bottom row (0 to 10)
+        estateText.setPosition(BOARD_WIDTH + 10 - (curr_position + 1) * SQUARE_SIZE + 3, BOARD_HEIGHT - SQUARE_SIZE + 5 * (owner->getID() + 1)-25);
     }
-}
+    else if (curr_position < 20) { // Left side (11 to 19)
+        estateText.setPosition(80, BOARD_HEIGHT - (curr_position - 10) * SQUARE_SIZE + 5 * (owner->getID() + 1)-50);
+    }
+    else if (curr_position < 31) { // Top row (20 to 30)
+        estateText.setPosition((curr_position - 20) * SQUARE_SIZE + 10, 5 * (owner->getID() + 1)+70);
+    }
+    else { // Right side (31 to 39)
+        estateText.setPosition(BOARD_WIDTH - SQUARE_SIZE - 60, (curr_position - 30) * SQUARE_SIZE + 5 * (owner->getID() + 1));
+    }
+    window.draw(estateText);
+    // Draw houses if it's a street
+        for (int i = 0; i < this->HouseCount; i++) {
+            sf::RectangleShape house(sf::Vector2f(5, 5)); // Size of each house
+            house.setFillColor(sf::Color::Green); // Color for houses
+            house.setPosition(position.x + 5 + (i * 12), position.y + 5); // Positioning houses
+            window.draw(house);
+        }
+
+        // Draw hotel if it exists
+        if (Hotel) {
+            sf::RectangleShape hotel(sf::Vector2f(7, 7)); // Size of the hotel
+            hotel.setFillColor(sf::Color::Red); // Color for the hotel
+            hotel.setPosition(position.x + 5, position.y - 15); // Position hotel above the estate
+            window.draw(hotel);
+        }
+    }
 
 void Street::isUpgradable(const std::vector<std::unique_ptr<Square>>& squares) {
     if (owner == nullptr) {

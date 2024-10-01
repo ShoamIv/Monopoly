@@ -31,6 +31,8 @@ class Player {
     int dice{};                        //recent diceRoll.
     int NumOfRailRoad=0;
     int getOutFromJail=0;
+    int DoubleCount=0;
+    bool ChanceDraw=false;
     bool Bankruptcy=false;
     std::vector<Estate*> Estates;       //Player Estates
 
@@ -50,8 +52,10 @@ public:
     void setChanceDraw(bool flag);
     void IncreaseJailCard();
     void setBankruptcy();
+    void setJailCard(int num);
+    void AddEstate(Estate &estate);
 
- //getters:
+    //getters:
     std::string getName();
     [[nodiscard]] int getCash() const;
     [[nodiscard]] int getJail() const;
@@ -62,6 +66,7 @@ public:
     int getJailCard() const;
     bool getChanceDraw() const;
     bool getBankruptcy() const;
+    int getPositionIndex(const std::string& location);
     sf::CircleShape & getCircle();
     std::vector<Estate*> getEstates();
 
@@ -70,12 +75,12 @@ public:
     void Move(int steps,sf::RenderWindow &window);
     void MoveTo(const std::string& location,sf::RenderWindow &window);
     void resetRepeatDouble();
-    void setJailCard(int num);
     void CollectBankruptcy(Player & BrokePlayer);
 
-    //GUI Update Method:
+    //GUI Update Player, Method:
     void DrawInfo(sf::RenderWindow &window);
 
+    const sf::Color &getColor();
 };
 
 

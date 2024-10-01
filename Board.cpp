@@ -77,7 +77,7 @@ void Board::initializeBoard() { // Renamed initializeBoard to setupBoard
     addSquare(std::make_unique<Street>("King George", "Jerusalem", 6, 360, 34));
 
     // Jail
-    addSquare(std::make_unique<SpecialSquare>("Go to Jail"));
+    addSquare(std::make_unique<SpecialSquare>("GotoJail"));
 
     // Green Properties - Tel Aviv
     addSquare(std::make_unique<Street>("Dizengoff ", "Tel Aviv", 7, 400, 36));
@@ -124,12 +124,12 @@ void Board::Draw(sf::RenderWindow &window) {
         std::string name = board[i]->getName(); // Assuming you have a method to get the name
         sf::Color color = getSquareColor(board[i]);
         DrawSquare(i, name, color, window);
+        board.at(i)->setPosition(graphicalSquares.at(i).first.getPosition());
     }
 }
 
 void Board::drawTitle(sf::RenderWindow &window) {
-        const int BOARD_WIDTH = 800;
-        const int BOARD_HEIGHT = 800;
+
         sf::Font font;
         // Load the font for the title text
         if (!font.loadFromFile("Lato-BlackItalic.ttf")) { // Make sure the font file exists in your working directory
