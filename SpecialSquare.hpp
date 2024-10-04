@@ -4,7 +4,6 @@
 #define MONOPOLY_SPECIALSQUARE_HPP
 #include "Player.hpp"
 #include "ChanceCard.hpp"
-#include "Button.hpp"
 /**
  * Special squares header
  *
@@ -30,6 +29,11 @@ public:
     };
 
     explicit SpecialSquare(const std::string &name);
+    /**
+     * Action performed on player, based on SquareType.
+     * @param player
+     * @param window
+     */
     void action(Player & player, sf::RenderWindow &window) override;
     ~SpecialSquare() override;
     [[nodiscard]] SquareType getSquareType() const;

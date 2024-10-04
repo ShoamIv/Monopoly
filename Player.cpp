@@ -1,4 +1,3 @@
-#include <utility>
 #include "Player.hpp"
 #include "Board.hpp"
 #include "Street.hpp"
@@ -26,7 +25,7 @@ void Player::setCash(int amount) {
     this->cash=cash+amount;
 }
 
-std::string Player::getName() {
+std::string Player::getName() const{
     return this->name;
 }
 
@@ -119,7 +118,7 @@ void Player::DrawInfo(sf::RenderWindow &window) {
 
 void Player::Move(int steps, sf::RenderWindow &window) {
     int old_pos=curr_position;
-    curr_position = (curr_position+steps)%40;
+    curr_position = ((curr_position+steps)+40)%40;
     // Set the token's position based on its index (i)
     if (curr_position < 11) {
         PlayerInfoCircle.setPosition(BOARD_WIDTH +10-(curr_position + 1) * SQUARE_SIZE+3, BOARD_HEIGHT +10- SQUARE_SIZE+5*(id+1));
@@ -164,11 +163,6 @@ void Player::IncreaseJailCard() {
 int Player::getJailCard() const {
     return this->getOutFromJail;
 }
-
-sf::CircleShape& Player::getCircle() {
-    return this->PlayerInfoCircle;
-}
-
 
 void Player::setBankruptcy() {
     this->Bankruptcy=true;

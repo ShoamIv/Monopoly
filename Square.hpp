@@ -27,7 +27,6 @@ protected:
 public:
     explicit Square(const std::string &name);
     //setters
-    void setName(std::string _type);
     void setPosition(sf::Vector2f pos);
     //getters
     std::string getName();

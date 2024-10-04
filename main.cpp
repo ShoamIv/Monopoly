@@ -5,11 +5,9 @@ int main() {
     // Create a window
     sf::RenderWindow window(sf::VideoMode(800, 800), "Monopoly Game");
     window.clear(sf::Color::White);  // Clear with a white background
-    // Specify the number of players
-    int numPlayers = 2;
     bool over=false;
     // Create the game flow
-    GameFlow gameFlow(numPlayers, window);
+    GameFlow gameFlow(window);
         while (window.isOpen() && !over) {
             sf::Event event;
             while (window.pollEvent(event)) {

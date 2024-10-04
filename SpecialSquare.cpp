@@ -1,5 +1,4 @@
 
-#include <utility>
 #include <unordered_map>
 #include "SpecialSquare.hpp"
 #include "Dice.hpp"
@@ -46,6 +45,8 @@ void SpecialSquare::action(Player & player, sf::RenderWindow &window) {
             std::cout << "Unknown special square type!" << std::endl;
             break;
     }
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
 }
 
 void SpecialSquare::GotoJail(Player &player, sf::RenderWindow &window) {
@@ -87,7 +88,7 @@ void SpecialSquare::Jail(Player &player, sf::RenderWindow &window) {
             return;
         }
     }
-    Button payButton(30, 30, "Pay $50", font, sf::Color::Green, [&]() {
+    Button payButton(50, 50, "Pay", font, sf::Color::Green, [&]() {
         if (player.getCash() >= 50) {
             player.setCash( -50); // Deduct $50 for paying bail
             updateMessage("You paid $50 to get out of jail.", window);
@@ -99,7 +100,7 @@ void SpecialSquare::Jail(Player &player, sf::RenderWindow &window) {
         }
     });
 
-    Button rollButton(30, 30, "Roll Dice", font, sf::Color::Blue, [&]() {
+    Button rollButton(50, 50, "Roll", font, sf::Color::Blue, [&]() {
         Dice dice;
         auto [roll1, roll2] = dice.roll(); // Roll the dice
         std::string message = "You rolled: " + std::to_string(roll1) + " and " + std::to_string(roll2) + ". ";
@@ -114,8 +115,8 @@ void SpecialSquare::Jail(Player &player, sf::RenderWindow &window) {
     });
 
     // Set button positions
-    payButton.setPosition(BOARD_WIDTH / 2 - 70, BOARD_HEIGHT / 2 + 120);
-    rollButton.setPosition(BOARD_WIDTH / 2 + 10, BOARD_HEIGHT / 2 + 120);
+    payButton.setPosition(BOARD_WIDTH / 2 - 110, BOARD_HEIGHT / 2 + 120);
+    rollButton.setPosition(BOARD_WIDTH / 2 + 60, BOARD_HEIGHT / 2 + 120);
     // Display the initial jail message
     bool actionTaken = false;
     payButton.render(window); // Render Pay button

@@ -22,35 +22,38 @@
  *
  */
 
-GameFlow::GameFlow(int numPlayers, sf::RenderWindow& window)
+GameFlow::GameFlow(sf::RenderWindow& window)
         : board(Board::getBoard()), window(window), currentPlayerIndex(0),
           throwDiceButton(200, 50, "Throw Dice", font, sf::Color::Green, []() {
               std::cout << "Dice rolled!" << std::endl;
           }) {
+
+    // Load font
     if (!font.loadFromFile("Lato-BlackItalic.ttf")) {
         std::cerr << "Error: Could not load font!" << std::endl;
         return; // Early exit if font loading fails
     }
+
     // Initialize the buttons
     ButtonInit();
+
+    // Initialize the game message text (e.g., to display errors or instructions)
     gameMessageText.setFont(font);
     gameMessageText.setCharacterSize(24);
     gameMessageText.setFillColor(sf::Color::Black);
     gameMessageText.setPosition(100, 100); // Set its position on the screen
-    board->Draw(window);     // Draw the board
-    while(numPlayers<2 || numPlayers>8){
-        std::cout<<"please insert numbers of players again, between 2-8 players.\n";
-        std::cin>>numPlayers;
-    }
-    for(int i=0; i<numPlayers; i++){
-        std::string name;
-        std::cout<< "Please enter your name. \n";
-        std::getline(std::cin, name);
-        playerLocations[i] = 0;
-    }
-    // Start the game (assuming this handles additional game setup)
+
+    // Draw the board
+    board->Draw(window);
+
+    // Ask for the valid number of players through the GUI
+    int numPlayers = promptForPlayerCount();
+
+    // Input for player names and colors
+    promptForPlayerDetails(numPlayers);
+    players.at(1).setCash(2700);
+    // Start the game
     startGame();
-   // }
 }
 
 void GameFlow::startGame() {
@@ -62,6 +65,12 @@ void GameFlow::startGame() {
 void GameFlow::playTurn(Player &player) {
     bool turnActive = true;  // Track if the turn is still active
     int doubleRolls = 0;     // Track the number of doubles rolled in the turn
+
+    // Check if the player is in jail at the start of the turn
+    if (player.getJail() > 0) {
+        handleSquare(player);  // Handle jail-related logic
+        turnActive = false;    // End the turn after handling jail
+    }
 
     while (turnActive) {
         sf::Event event;
@@ -98,8 +107,9 @@ void GameFlow::playTurn(Player &player) {
                         } else {
                             // Move player and let them roll again
                             movePlayer(player, roll1 + roll2);
-                            handleSquare(player);
                             updateMessage(player.getName() + " gets an extra turn for rolling a double!");
+                            std::this_thread::sleep_for(std::chrono::seconds(2));
+                            handleSquare(player);
                         }
                     } else {
                         // Normal turn, move player and end the turn
@@ -109,6 +119,7 @@ void GameFlow::playTurn(Player &player) {
                         turnActive = false;  // End the turn
                     }
                 }
+
                 // Check if the "View Estates" button is clicked
                 if (viewEstatesButton.isHovered(window)) {
                     std::cout << "View Estates button clicked!" << std::endl;
@@ -126,10 +137,12 @@ void GameFlow::playTurn(Player &player) {
         // Ensure the window is updated and displayed
         window.display();
     }
+
     // Move to the next player after the turn ends
     checkBankruptcy();
     currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
 }
+
 
 void GameFlow::movePlayer(Player &player, int steps) {
     int currentPosition = playerLocations[player.getID()]; // Get current position
@@ -189,12 +202,20 @@ int GameFlow::getTurn() const {
 }
 
 bool GameFlow:: isGameOver() {
-    for(const Player& p : players){
-        if(p.getCash()>=4000)
+    std::string winMessage;
+    for (const Player &p: players) {
+        if (p.getCash() >= 4000) {
+            winMessage = p.getName() + " Has just Won the Game, Good Game!";
+            displayMessage(winMessage);
+            std::this_thread::sleep_for(std::chrono::seconds(4));
             return true;
-    }
-    if(players.size()==1){
-        return true;
+        }
+        if (players.size() == 1) {
+            winMessage = players.at(0).getName() + " Has just Won the Game, Good Game!";
+            displayMessage(winMessage);
+            std::this_thread::sleep_for(std::chrono::seconds(4));
+            return true;
+        }
     }
     return false;
 }
@@ -286,6 +307,84 @@ void GameFlow::displayEstates() {
         sf::sleep(sf::seconds(3));
     }
 }
+
+// Function to convert user input to PlayerColor
+PlayerColor GameFlow:: getPlayerColorFromInput(const std::string& colorInput) {
+    if (colorInput == "red") return PlayerColor::Red;
+    if (colorInput == "blue") return PlayerColor::Blue;
+    if (colorInput == "green") return PlayerColor::Green;
+    if (colorInput == "yellow") return PlayerColor::Yellow;
+    if (colorInput == "orange") return PlayerColor::Orange;
+    if (colorInput == "purple") return PlayerColor::Purple;
+    if (colorInput == "brown") return PlayerColor::Brown;
+    if (colorInput == "magenta") return PlayerColor::Magenta;
+
+    // Default or invalid input handling
+    std::cerr << "Invalid color! Defaulting to Red." << std::endl;
+    return PlayerColor::Red;
+}
+int GameFlow::promptForPlayerCount() {
+    int numPlayers = 0;
+
+    while (numPlayers < 2 || numPlayers > 8) {
+        // Display the prompt in the GUI
+        displayMessage("Please insert the number of players (between 2-8): ");
+
+        // Capture user input through the GUI (the user types the number)
+        std::string input = getUserInput();
+
+        try {
+            // Try to convert the input to an integer
+            numPlayers = std::stoi(input);
+        } catch (...) {
+            // If input is invalid, show an error message
+            updateMessage("Invalid input. Please enter a valid number between 2 and 8.");
+        }
+    }
+
+    return numPlayers;
+}
+void GameFlow::promptForPlayerDetails(int numPlayers) {
+    for (int i = 0; i < numPlayers; i++) {
+        // Prompt for player's name
+        displayMessage("Player " + std::to_string(i + 1) + ", enter your name:");
+        std::string playerName = getUserInput();
+
+        // Prompt for player's color
+        displayMessage(  playerName + ", choose a color (red, blue, green, yellow, \norange, Purple, brown, magenta):");
+        std::string colorInput = getUserInput();
+        // Convert the color input to the PlayerColor enum
+        PlayerColor playerColor = getPlayerColorFromInput(colorInput);
+        // Create the player
+        players.emplace_back(playerName, playerColor, i, window);
+        playerLocations[i] = 0;
+    }
+}
+std::string GameFlow::getUserInput() {
+    std::string userInput;
+    sf::Event event;
+
+    while (window.waitEvent(event)) {  // Wait for events in a blocking loop
+        if (event.type == sf::Event::TextEntered) {
+            if (event.text.unicode == '\b' && !userInput.empty()) {
+                // Handle backspace (removing last character)
+                userInput.pop_back();
+            } else if (event.text.unicode == '\r') {
+                // Handle enter (submit input)
+                break;
+            } else if (event.text.unicode < 128) {
+                // Only handle standard characters
+                userInput += static_cast<char>(event.text.unicode);
+            }
+
+            // Update message in real-time (shows the typed input)
+            updateMessage(userInput);
+        }
+    }
+
+    return userInput;
+}
+
 GameFlow::~GameFlow() {
     // This destructor is called when GameFlow goes out of scope
     players.clear(); // Clear the players

@@ -41,6 +41,7 @@ void Street::VisitorAction(Player &player, sf::RenderWindow &window) {
         // Create a message to display
         message = player.getName() + " pay up!  $" + std::to_string(curr_rent) + " to: " + this->get_owner()->getName();
         updateMessage(message, window);
+        std::this_thread::sleep_for(std::chrono::seconds(2));
 
       }
     }
@@ -111,6 +112,7 @@ void Street::OwnerAction(Player &player, sf::RenderWindow &window) {
                     Hotel = true;  // Build the hotel
                 } else {
                     updateMessage("Not enough money to build a hotel.", window);
+                    std::this_thread::sleep_for(std::chrono::seconds(2));
                 }
             } else {
                 if (player.getCash() >= HouseCost) {
@@ -137,7 +139,7 @@ void Street::drawHousesAndHotel(sf::RenderWindow &window)  {
     sf::Text estateText;
     estateText.setFont(font); // Ensure you have loaded the font
     estateText.setString(owner ? owner->getName() + " Street " : ""); // Check if there is an owner
-    estateText.setCharacterSize(12); // Set the size of the text    estateMarker.setFillColor(owner->getColor()); // Set the color based on the owner's color
+    estateText.setCharacterSize(12); // Set the size of the text
     estateText.setFillColor(owner->getColor());
 
     int curr_position = this->owner->getPositionIndex(this->getName());

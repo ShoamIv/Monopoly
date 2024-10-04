@@ -25,15 +25,41 @@ class Board {
     Button button;
 
 public:
+    /**
+     * Draw board.
+     * @param window
+     */
     void Draw(sf::RenderWindow &window);
+    /**
+     * Draw title of the game.
+     * @param window
+     */
     void drawTitle(sf::RenderWindow &window) ;
+    /**
+     * Draw each Square at the specific location with name and color at window.
+     * @param i
+     * @param name
+     * @param color
+     * @param window
+     */
     void DrawSquare(int i, const std::string &name, sf::Color color, sf::RenderWindow &window);
+   /**
+    * Getter for the board.
+    * @return
+    */
     static Board * getBoard();
-    Button getButton();
+    /**
+     * Get the index of the square based string location.
+     * @param location
+     * @return
+     */
     int getSquareIndex(const std::string &location) const;
     std::vector<std::unique_ptr<Square>>& getSquares();
     ~Board();
-    // Delete copy constructor and assignment operator
+    /**
+     * Delete copy constructor and assignment operator.
+     * Maintain Singleton Structure.
+     */
     Board(const Board&) = delete;
     Board& operator=(const Board&) = delete;
 };

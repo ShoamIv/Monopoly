@@ -6,11 +6,6 @@ sf::Font Square::font;
 // Constructor
 Square::Square(const std::string &name) :name((name)) {}
 
-// Other methods remain the same
-void Square::setName(std::string _name) {
-    this->name = std::move(_name);
-}
-
 void Square:: setPosition(const sf::Vector2f pos) {
     this->position=pos;
 }
@@ -37,7 +32,6 @@ void Square::updateMessage(const std::string &message, sf::RenderWindow &window)
     // Draw the message
     window.draw(messageText);
     window.display();
-    std::this_thread::sleep_for(std::chrono::seconds(2));
 }
 
 void Square:: LoadFont()

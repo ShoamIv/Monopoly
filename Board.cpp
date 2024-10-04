@@ -7,11 +7,9 @@ Board* Board::ptr = nullptr;
 Board::Board() {
     initializeBoard();
 }
-
 Board::~Board() {
    board.clear();
 }
-
 Board* Board::getBoard() {
     if (ptr == nullptr) {
         ptr = new Board();
@@ -76,8 +74,8 @@ void Board::initializeBoard() { // Renamed initializeBoard to setupBoard
     addSquare(std::make_unique<Infrastructure>("Water Company", 150));
     addSquare(std::make_unique<Street>("King George", "Jerusalem", 6, 360, 34));
 
-    // Jail
-    addSquare(std::make_unique<SpecialSquare>("GotoJail"));
+    // GoToJail
+    addSquare(std::make_unique<SpecialSquare>("GoToJail"));
 
     // Green Properties - Tel Aviv
     addSquare(std::make_unique<Street>("Dizengoff ", "Tel Aviv", 7, 400, 36));
@@ -244,9 +242,6 @@ void Board::drawSectionName(const std::string &name, float x, float y, sf::Rende
     window.draw(sectionText);
 }
 
-Button Board::getButton() {
-    return this->button;
-}
 int Board::getSquareIndex(const std::string &location) const {
     for (size_t i = 0; i < board.size(); ++i) {
         if (board[i]->getName() == location) { // Assuming Square has a method getName()

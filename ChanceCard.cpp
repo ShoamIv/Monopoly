@@ -1,5 +1,4 @@
 #include "ChanceCard.hpp"
-#include <iostream>
 #include <random> // Include for random number generation
 
 ChanceCard::ChanceCard(Effect effect)
@@ -37,7 +36,7 @@ void ChanceCard::ApplyEffect(Player &player, std::vector<Player> &Players, sf::R
 
         case Effect::ElectedChairman:
             for (Player &other : Players) {
-                if (&other != &player) {
+                if (other.getID() != player.getID()) {
                     other.setCash(-50);
                     player.setCash(50);
                     message = other.getName() + " pays $50 to " + player.getName() + ".";
@@ -72,6 +71,7 @@ void ChanceCard::ApplyEffect(Player &player, std::vector<Player> &Players, sf::R
     }
     // Display the message in the GUI
     Square::updateMessage(message, window);
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 }
 
 ChanceCard ChanceCard::DrawCard(Player &player, std::vector<Player> &Players, sf::RenderWindow &window) {
@@ -84,4 +84,8 @@ ChanceCard ChanceCard::DrawCard(Player &player, std::vector<Player> &Players, sf
     // Apply the drawn effect to the player
     drawnCard.ApplyEffect(player,Players,window);
     return drawnCard;
+}
+
+Effect ChanceCard :: ChanceCard::getEffect() {
+    return this->effect;
 }

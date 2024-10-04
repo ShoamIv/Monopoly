@@ -3,6 +3,10 @@
 #define MONOPOLY_ESTATE_HPP
 #include "Square.hpp"
 #include "button.hpp"
+/**
+ * Estates Header, Virtual class Implemented by Street,Infrastructure.
+ * Contain all types of Square that are can be bought.
+ */
 class Estate : public Square{
     Button yesButton;
     Button noButton;
@@ -12,11 +16,13 @@ protected:
 public:
     Estate(const std::string &name, int cost);
     //setters
-    void set_cost(int _cost);
     void set_owner(Player *_owner);
     //getters
-    [[nodiscard]] int get_cost() const;
     Player * get_owner();
+    /**
+     * Buy Estate buy player.
+     * handle GUI and cash.
+     */
     void BuyEstate(Player & player,sf::RenderWindow& window);
     virtual void drawHousesAndHotel(sf::RenderWindow &window)=0;
 
