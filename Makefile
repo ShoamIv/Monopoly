@@ -53,8 +53,6 @@ $(TEST_EXECUTABLE): $(filter-out main.o,$(TEST_OBJECTS))
 valgrind_test: $(TEST_EXECUTABLE)
 	valgrind --tool=memcheck $(VALGRIND_FLAGS) ./$(TEST_EXECUTABLE)
 
-valgrind_catan: $(EXECUTABLE)
-	valgrind --tool=memcheck $(VALGRIND_FLAGS) ./$(EXECUTABLE)
 #2>&1 | { egrep "lost| at " || true; }
 
 # Clean rule
