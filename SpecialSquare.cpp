@@ -60,13 +60,16 @@ void SpecialSquare::Tax(Player &player, sf::RenderWindow &window) {
         messageStr= player.getName()+" Bankrupt, better Luck next time!";
         player.setBankruptcy();
         updateMessage(messageStr,window);
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+
     }
     else {
         player.setCash(-100);            // Deduct tax from the player's account
         messageStr = "Tax of $100 has been deducted from your account.\n"
                      "Your current balance is $" + std::to_string(player.getCash()) + ".";
         updateMessage(messageStr, window);
-        }
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+    }
     }
 
 void SpecialSquare::Chance(Player &player, sf::RenderWindow &window) {
@@ -74,7 +77,7 @@ void SpecialSquare::Chance(Player &player, sf::RenderWindow &window) {
 }
 
 void SpecialSquare::FreeParking(Player &player, sf::RenderWindow &window) {
-    std::string messageStr = " landed on a Free Parking spot!\nEnjoy your break, mate!";
+    std::string messageStr = player.getName() + " landed on a Free Parking spot!\nEnjoy your break, mate!";
     updateMessage(messageStr, window);
 }
 
@@ -84,6 +87,7 @@ void SpecialSquare::Jail(Player &player, sf::RenderWindow &window) {
         if (player.getJailCard() > 0) {
             player.setJailCard(-1);
             updateMessage("Tricky way to avoid jail, next time...\n jail card has used", window);
+            std::this_thread::sleep_for(std::chrono::seconds(2));
             player.setJail(-(player.getJail()));
             return;
         }
@@ -103,16 +107,17 @@ void SpecialSquare::Jail(Player &player, sf::RenderWindow &window) {
     Button rollButton(50, 50, "Roll", font, sf::Color::Blue, [&]() {
         Dice dice;
         auto [roll1, roll2] = dice.roll(); // Roll the dice
-        std::string message = "You rolled: " + std::to_string(roll1) + " and " + std::to_string(roll2) + ". ";
+        std::string message = player.getName()+" rolled: " + std::to_string(roll1) + " and " + std::to_string(roll2) + ". ";
         if (roll1 == roll2) {
-            message += "Congratulations, you are free!";
+            message += "Congratulations, " +  player.getName()+ " you are free!";
             player.setJail(-(player.getJail()));          // Free the player from jail
         } else {
             player.setJail(-1);
-            message += "You remain in jail "+std::to_string(player.getJail()) + " turns";
+            message +=  player.getName()+" remain in jail "+std::to_string(player.getJail()) + " turns";
         }
         updateMessage(message, window);
     });
+    window.clear(sf::Color::White);  // Clear the window
 
     // Set button positions
     payButton.setPosition(BOARD_WIDTH / 2 - 110, BOARD_HEIGHT / 2 + 120);
@@ -121,11 +126,11 @@ void SpecialSquare::Jail(Player &player, sf::RenderWindow &window) {
     bool actionTaken = false;
     payButton.render(window); // Render Pay button
     rollButton.render(window); // Render Roll button
-    updateMessage("You are in jail. Pay $50 to get out or roll the dice.", window);
+    updateMessage(player.getName() +" is in jail. Pay $50 to get out or roll the dice.", window);
 
     // Main loop for handling jail actions
     while (!actionTaken) {
-        sf::Event event;
+        sf::Event event{};
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();

@@ -37,9 +37,17 @@ void ChanceCard::ApplyEffect(Player &player, std::vector<Player> &Players, sf::R
         case Effect::ElectedChairman:
             for (Player &other : Players) {
                 if (other.getID() != player.getID()) {
-                    other.setCash(-50);
-                    player.setCash(50);
-                    message = other.getName() + " pays $50 to " + player.getName() + ".";
+                    if (other.getCash() < 50) {
+                        other.setBankruptcy();
+                        player.CollectBankruptcy(other);
+                        message = other.getName() + "Has Just Bankruptcy, wish him better Luck next time.."
+                                                     " "+player.getName()+" Took all your possession!";
+                    }
+                    else {
+                        other.setCash(-50);
+                        player.setCash(50);
+                        message = other.getName() + " pays $50 to " + player.getName() + ".";
+                    }
                 }
             }
             break;
@@ -67,6 +75,7 @@ void ChanceCard::ApplyEffect(Player &player, std::vector<Player> &Players, sf::R
             break;
     }
     if(player.getCash()<0){
+        message= player.getName()+" Bankrupt, better Luck next time!";
         player.setBankruptcy();
     }
     // Display the message in the GUI

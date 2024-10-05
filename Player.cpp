@@ -201,10 +201,6 @@ bool Player::getChanceDraw() const {
     return this->ChanceDraw;
 }
 
-void Player::resetRepeatDouble() {
-    DoubleCount=0;
-}
-
 void Player::AddEstate(Estate &estate) {
     this->Estates.emplace_back(&estate);
 }

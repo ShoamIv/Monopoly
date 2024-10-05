@@ -31,7 +31,7 @@ void Board::initializeBoard() { // Renamed initializeBoard to setupBoard
 
     // Utilities
     addSquare(std::make_unique<SpecialSquare>("Tax"));
-    addSquare(std::make_unique<Infrastructure>("Railroad", 200));
+    addSquare(std::make_unique<Infrastructure>("Railroad1", 200));
 
     // Kiryat Ata
     addSquare(std::make_unique<Street>("HaYarden", "Kiryat Ata", 2, 100, 8));
@@ -48,7 +48,7 @@ void Board::initializeBoard() { // Renamed initializeBoard to setupBoard
     addSquare(std::make_unique<Street>("Ramat Hagolan", "Ariel", 3, 180, 16));
     addSquare(std::make_unique<Street>("Neve Shannan", "Ariel", 3, 200, 18));
 
-    addSquare(std::make_unique<Infrastructure>("Railroad", 200));
+    addSquare(std::make_unique<Infrastructure>("Railroad2", 200));
 
     // Orange Properties - Netanya
     addSquare(std::make_unique<Street>("Herzl", "Netanya", 4, 200, 18));
@@ -66,7 +66,7 @@ void Board::initializeBoard() { // Renamed initializeBoard to setupBoard
     addSquare(std::make_unique<Street>("HaPalmach ", "Haifa", 5, 300, 28));
 
     // Railroad
-    addSquare(std::make_unique<Infrastructure>("Railroad", 200));
+    addSquare(std::make_unique<Infrastructure>("Railroad3", 200));
 
     // Yellow Properties - Jerusalem
     addSquare(std::make_unique<Street>("Ben Yehuda", "Jerusalem", 6, 320, 30));
@@ -84,7 +84,7 @@ void Board::initializeBoard() { // Renamed initializeBoard to setupBoard
     addSquare(std::make_unique<Street>("Hayarkon ", "Tel Aviv", 7, 440, 40));
 
     // Railroad & Chance
-    addSquare(std::make_unique<Infrastructure>("Railroad", 200));
+    addSquare(std::make_unique<Infrastructure>("Railroad4", 200));
     addSquare(std::make_unique<SpecialSquare>("Chance"));
 
     // Blue Properties - Savion
@@ -213,7 +213,10 @@ sf::Color Board::getSquareColor(const std::unique_ptr<Square>& square) const {
     if (name == "Jail") return {128, 128, 128}; // Gray for "Jail"
     if (name == "Free Parking") return {255, 255, 255}; // White for "Free Parking"
     if (name == "Go to Jail") return {255, 105, 97}; // Salmon for "Go to Jail"
-    if (name == "Railroad") return {169, 169, 169}; // Dark Gray for "Railroad"
+    if (name == "Railroad1") return {169, 169, 169}; // Dark Gray for "Railroad"
+    if (name == "Railroad2") return {169, 169, 169}; // Dark Gray for "Railroad"
+    if (name == "Railroad3") return {169, 169, 169}; // Dark Gray for "Railroad"
+    if (name == "Railroad4") return {169, 169, 169}; // Dark Gray for "Railroad"
     if (name == "Electric Company") return {255, 255, 0}; // Yellow for Electric Company
     if (name == "Water Company") return {0, 191, 255}; // Deep Sky Blue for Water Company
 

@@ -16,7 +16,6 @@ int main() {
             }
             // Update the game state
             gameFlow.updateGUI();
-            window.draw(gameFlow.gameMessageText);  // Draw the game message
             // Play a turn
             gameFlow.playTurn(gameFlow.getPlayers()[gameFlow.getTurn()]);
             // Display the window contents

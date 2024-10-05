@@ -57,6 +57,7 @@ void Estate::BuyEstate(Player &player, sf::RenderWindow &window) {
                     message = "Not enough money to buy: " + name;
                     updateMessage(message, window);
                 }
+                std::this_thread::sleep_for(std::chrono::seconds(2));
                 actionComplete = true; // Complete the action
             }
 
@@ -64,6 +65,8 @@ void Estate::BuyEstate(Player &player, sf::RenderWindow &window) {
                 // Player chose not to buy the property
                 message = player.getName() + " decided not to buy: " + name;
                 updateMessage(message, window);
+                std::this_thread::sleep_for(std::chrono::seconds(2));
+
                 actionComplete = true; // Complete the action
             }
         }

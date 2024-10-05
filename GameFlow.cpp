@@ -1,4 +1,3 @@
-
 #include "GameFlow.hpp"
 #include "Street.hpp"
 /**
@@ -33,25 +32,14 @@ GameFlow::GameFlow(sf::RenderWindow& window)
         std::cerr << "Error: Could not load font!" << std::endl;
         return; // Early exit if font loading fails
     }
-
     // Initialize the buttons
     ButtonInit();
-
-    // Initialize the game message text (e.g., to display errors or instructions)
-    gameMessageText.setFont(font);
-    gameMessageText.setCharacterSize(24);
-    gameMessageText.setFillColor(sf::Color::Black);
-    gameMessageText.setPosition(100, 100); // Set its position on the screen
-
     // Draw the board
     board->Draw(window);
-
     // Ask for the valid number of players through the GUI
     int numPlayers = promptForPlayerCount();
-
     // Input for player names and colors
     promptForPlayerDetails(numPlayers);
-    players.at(1).setCash(2700);
     // Start the game
     startGame();
 }
@@ -69,16 +57,15 @@ void GameFlow::playTurn(Player &player) {
     // Check if the player is in jail at the start of the turn
     if (player.getJail() > 0) {
         handleSquare(player);  // Handle jail-related logic
-        turnActive = false;    // End the turn after handling jail
+        return;  // End the turn after handling jail
     }
 
     while (turnActive) {
-        sf::Event event;
+        sf::Event event{};
         while (window.pollEvent(event)) {
             // Handle window closing
             if (event.type == sf::Event::Closed) {
                 window.close();
-                turnActive = false;
                 return;
             }
 
@@ -87,33 +74,39 @@ void GameFlow::playTurn(Player &player) {
                 // Check if the "Throw Dice" button is clicked
                 if (throwDiceButton.isHovered(window)) {
                     auto [roll1, roll2] = dice.roll(); // Roll the dice
-                    std::string moveMessage = player.getName() + " rolled the dice: " + std::to_string(roll1) + ", " + std::to_string(roll2) + ".";
+                    // For testing, let's set a fixed roll
+                    std::string moveMessage = player.getName() + " rolled the dice: " + std::to_string(roll1) + ", " +
+                                              std::to_string(roll2) + ".";
                     std::cout << moveMessage << std::endl;
                     updateMessage(moveMessage);
                     window.display();
                     std::this_thread::sleep_for(std::chrono::seconds(2));
-
                     // If the player rolled a double
                     if (roll1 == roll2) {
                         doubleRolls++;
                         if (doubleRolls == 3) {
                             // Player goes to jail after 3 consecutive doubles
-                            player.resetRepeatDouble();
+                            doubleRolls = 0; // Reset double rolls
                             displayMessage(player.getName() + " has rolled 3 doubles in a row. Time to go to jail!");
                             player.MoveTo("Jail", window);
                             playerLocations.at(player.getID()) = 10;
                             handleSquare(player);  // Handle landing on jail
-                            turnActive = false;    // End the player's turn
-                        } else {
+                            return; // End the player's turn
+                        }
+                        else {
                             // Move player and let them roll again
                             movePlayer(player, roll1 + roll2);
                             updateMessage(player.getName() + " gets an extra turn for rolling a double!");
                             std::this_thread::sleep_for(std::chrono::seconds(2));
                             handleSquare(player);
+                            // Check if the player is in jail after moving
+                            if (player.getJail() > 0 || playerLocations.at(currentPlayerIndex) == 20) {
+                                turnActive = false; // End the turn if the player ends up in jail
+                                break; // Exit the loop
+                            }
                         }
                     } else {
                         // Normal turn, move player and end the turn
-                        doubleRolls = 0;  // Reset double rolls count
                         movePlayer(player, roll1 + roll2);
                         handleSquare(player);
                         turnActive = false;  // End the turn
@@ -127,22 +120,13 @@ void GameFlow::playTurn(Player &player) {
                 }
             }
         }
-
-        // Clear the window and render the GUI and buttons
-        window.clear(sf::Color::White);  // Clear the window
         updateGUI();                     // Update and render the game GUI
-        // Render the "Throw Dice" and "View Estates" buttons
-        throwDiceButton.render(window);
-        viewEstatesButton.render(window);
-        // Ensure the window is updated and displayed
-        window.display();
+        window.display();                // Ensure the window is updated and displayed
     }
-
     // Move to the next player after the turn ends
     checkBankruptcy();
     currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
 }
-
 
 void GameFlow::movePlayer(Player &player, int steps) {
     int currentPosition = playerLocations[player.getID()]; // Get current position
@@ -186,7 +170,9 @@ void GameFlow::updateGUI() {
     window.clear(sf::Color::White);  // Clear the window
     // Draw the board and all players
     board->Draw(window);
+    // Render the "Throw Dice" and "View Estates" buttons
     viewEstatesButton.render(window);
+    throwDiceButton.render(window);
     // Draw each player based on their updated locations
       for(Player player : players){
         player.DrawInfo(window); // Draw the player's token at the correct position
@@ -297,6 +283,9 @@ void GameFlow::displayEstates() {
         for (const auto &property: player.getEstates()) {
             estates += property->getName() + "\n";
         }
+        if(player.getJailCard()>0){
+            estates+= "posses " + std::to_string(player.getJailCard()) + " Get out of Jail Card\n";
+        }
         // If player has no estates, display a message indicating that
         if (player.getEstates().empty()) {
             estates = player.getName() + " owns no properties.";
@@ -309,20 +298,49 @@ void GameFlow::displayEstates() {
 }
 
 // Function to convert user input to PlayerColor
-PlayerColor GameFlow:: getPlayerColorFromInput(const std::string& colorInput) {
-    if (colorInput == "red") return PlayerColor::Red;
-    if (colorInput == "blue") return PlayerColor::Blue;
-    if (colorInput == "green") return PlayerColor::Green;
-    if (colorInput == "yellow") return PlayerColor::Yellow;
-    if (colorInput == "orange") return PlayerColor::Orange;
-    if (colorInput == "purple") return PlayerColor::Purple;
-    if (colorInput == "brown") return PlayerColor::Brown;
-    if (colorInput == "magenta") return PlayerColor::Magenta;
+PlayerColor GameFlow::getPlayerColorFromInput(const std::string& colorInput) {
+    PlayerColor color;
 
-    // Default or invalid input handling
-    std::cerr << "Invalid color! Defaulting to Red." << std::endl;
-    return PlayerColor::Red;
+    // Match input to PlayerColor
+    if (colorInput == "red") color = PlayerColor::Red;
+    else if (colorInput == "blue") color = PlayerColor::Blue;
+    else if (colorInput == "green") color = PlayerColor::Green;
+    else if (colorInput == "yellow") color = PlayerColor::Yellow;
+    else if (colorInput == "orange") color = PlayerColor::Orange;
+    else if (colorInput == "purple") color = PlayerColor::Purple;
+    else if (colorInput == "brown") color = PlayerColor::Brown;
+    else if (colorInput == "magenta") color = PlayerColor::Magenta;
+    else {
+        std::cerr << "Invalid color! Defaulting to Red." << std::endl;
+        color = PlayerColor::Red;
+    }
+
+    // Check if the color has already been selected
+    if (selectedColors.find(color) != selectedColors.end()) {
+        std::cerr << "Color already selected! Assigning a new available color." << std::endl;
+        // Automatically assign the first available color
+        color = getFirstAvailableColor();
+    }
+
+    // Mark the color as selected
+    selectedColors.insert(color);
+    return color;
 }
+
+PlayerColor GameFlow::getFirstAvailableColor() {
+    if (selectedColors.find(PlayerColor::Red) == selectedColors.end()) return PlayerColor::Red;
+    if (selectedColors.find(PlayerColor::Blue) == selectedColors.end()) return PlayerColor::Blue;
+    if (selectedColors.find(PlayerColor::Green) == selectedColors.end()) return PlayerColor::Green;
+    if (selectedColors.find(PlayerColor::Yellow) == selectedColors.end()) return PlayerColor::Yellow;
+    if (selectedColors.find(PlayerColor::Orange) == selectedColors.end()) return PlayerColor::Orange;
+    if (selectedColors.find(PlayerColor::Purple) == selectedColors.end()) return PlayerColor::Purple;
+    if (selectedColors.find(PlayerColor::Brown) == selectedColors.end()) return PlayerColor::Brown;
+    if (selectedColors.find(PlayerColor::Magenta) == selectedColors.end()) return PlayerColor::Magenta;
+
+    std::cerr << "No available colors!" << std::endl;
+    return PlayerColor::Red; // Default color in case all are chosen (shouldn't happen if limited by number of players)
+}
+
 int GameFlow::promptForPlayerCount() {
     int numPlayers = 0;
 
@@ -341,9 +359,9 @@ int GameFlow::promptForPlayerCount() {
             updateMessage("Invalid input. Please enter a valid number between 2 and 8.");
         }
     }
-
     return numPlayers;
 }
+
 void GameFlow::promptForPlayerDetails(int numPlayers) {
     for (int i = 0; i < numPlayers; i++) {
         // Prompt for player's name
@@ -360,9 +378,10 @@ void GameFlow::promptForPlayerDetails(int numPlayers) {
         playerLocations[i] = 0;
     }
 }
+
 std::string GameFlow::getUserInput() {
     std::string userInput;
-    sf::Event event;
+    sf::Event event{};
 
     while (window.waitEvent(event)) {  // Wait for events in a blocking loop
         if (event.type == sf::Event::TextEntered) {
@@ -388,5 +407,4 @@ std::string GameFlow::getUserInput() {
 GameFlow::~GameFlow() {
     // This destructor is called when GameFlow goes out of scope
     players.clear(); // Clear the players
-    // If you have dynamically allocated memory for players or other resources, ensure to delete them here
 }

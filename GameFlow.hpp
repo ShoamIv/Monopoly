@@ -2,6 +2,7 @@
 #ifndef MONOPOLY_GAMEFLOW_HPP
 #define MONOPOLY_GAMEFLOW_HPP
 #include <unordered_map>
+#include <unordered_set>
 #include "Board.hpp"
 #include "Dice.hpp"
 #include "Button.hpp"
@@ -21,7 +22,8 @@ class GameFlow {
     sf::Font font;                      // Font used for displaying text.
     std::vector<Player> players;        // Vector to store all players
     int currentPlayerIndex;                 // Tracks the current player's turn
-    std::unordered_map<int, int> playerLocations;
+    std::unordered_map<int, int> playerLocations;       // track player Location across the board.
+    std::unordered_set<PlayerColor> selectedColors;     //track players colors to make sure no color repeating.
     void handleSquare(Player& player);                  // Handles landing.
     void movePlayer(Player& player,int steps);             // Handles the player's dice roll and movement
     /**
@@ -51,6 +53,34 @@ class GameFlow {
     * @return The corresponding PlayerColor enum value.
     */
     PlayerColor getPlayerColorFromInput(const std::string& colorInput);
+
+    /**
+     * Once Player has Bankrupt, Remove player from the game.
+     * @param playerID
+     */
+    void removePlayer(int playerID);
+    /**
+     * Display all Estates once the button is clicked.
+     */
+    void displayEstates();
+    /**
+     * @brief Prompts the user for the number of players to start the game.
+     * @return The number of players entered by the user.
+     */
+    int promptForPlayerCount();
+    /**
+    * @brief Prompts the user for details about each player.
+    * @param numPlayers The number of players to gather details for.
+    */
+    void promptForPlayerDetails(int numPlayers);
+
+    /**
+     * @brief Gets user input from the console.
+     * @return The input string from the user.
+     */
+    std::string getUserInput();
+
+    PlayerColor getFirstAvailableColor();
 
 public:
     explicit GameFlow(sf::RenderWindow& window);         // Constructor: Initializes the game with a given number of players
@@ -84,33 +114,7 @@ public:
     Button yesButton;
     Button noButton;
     Button viewEstatesButton;
-    //Text Box inGame.
-    sf::Text gameMessageText;
-   /**
-    * Once Player has Bankrupt, Remove player from the game.
-    * @param playerID
-    */
-    void removePlayer(int playerID);
-    /**
-     * Display all Estates once the button is clicked.
-     */
-    void displayEstates();
-    /**
-     * @brief Prompts the user for the number of players to start the game.
-     * @return The number of players entered by the user.
-     */
-    int promptForPlayerCount();
-    /**
-    * @brief Prompts the user for details about each player.
-    * @param numPlayers The number of players to gather details for.
-    */
-    void promptForPlayerDetails(int numPlayers);
 
-    /**
-     * @brief Gets user input from the console.
-     * @return The input string from the user.
-     */
-    std::string getUserInput();
 };
 
 

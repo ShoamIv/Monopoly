@@ -50,9 +50,10 @@ void Infrastructure::RailroadAction(Player &player, sf::RenderWindow &window) {
         player.setBankruptcy();
         this->owner->CollectBankruptcy(player);
         message = player.getName() + "Has Just Bankruptcy, wish him better Luck next time.."
-                                     ""+this->owner->getName()+"Took all your possession!";
+                                     " "+this->owner->getName()+"Took all your possession!";
         updateMessage(message, window);
         window.display();
+        std::this_thread::sleep_for(std::chrono::seconds(3));
 
     }else
     this->owner->CollectRent(player, curr_rent);
@@ -60,29 +61,31 @@ void Infrastructure::RailroadAction(Player &player, sf::RenderWindow &window) {
 }
 
 void Infrastructure::drawHousesAndHotel(sf::RenderWindow &window) {
-    if(owner==nullptr)return;
-    sf::Text estateText;
-    estateText.setFont(font); // Ensure you have loaded the font
-    estateText.setString(owner ? owner->getName() + " Infrastructure " : ""); // Check if there is an owner
-    estateText.setCharacterSize(12); // Set the size of the text    estateMarker.setFillColor(owner->getColor()); // Set the color based on the owner's color
-    estateText.setFillColor(owner->getColor());
-
+    if(owner==nullptr) return;           //safety
+// Display Street Name
+    sf::Text InfrastructureText;
+    InfrastructureText.setFont(font); // Ensure the font is loaded
+    InfrastructureText.setCharacterSize(12); // Text size
+    InfrastructureText.setFillColor(owner->getColor()); // Default text color
+    // Display Street Name
     int curr_position = this->owner->getPositionIndex(this->getName());
+    InfrastructureText.setString(owner->getName() +" Estate");
+    sf::Vector2f streetPosition = this->position;
+
     // Positioning the estate marker based on the current position on the board
     if (curr_position < 11) { // Bottom row (0 to 10)
-        estateText.setPosition(BOARD_WIDTH + 10 - (curr_position + 1) * SQUARE_SIZE + 3, BOARD_HEIGHT - SQUARE_SIZE + 5 * (owner->getID() + 1)-20);
+        InfrastructureText.setPosition(streetPosition.x +10, streetPosition.y - 20);
     }
     else if (curr_position < 20) { // Left side (11 to 19)
-        estateText.setPosition(80, BOARD_HEIGHT - (curr_position - 10) * SQUARE_SIZE + 5 * (owner->getID() + 1)-50);
+        InfrastructureText.setPosition(streetPosition.x+80, streetPosition.y + 30 );
     }
     else if (curr_position < 31) { // Top row (20 to 30)
-        estateText.setPosition((curr_position - 20) * SQUARE_SIZE + 10, 5 * (owner->getID() + 1)+70);
+        InfrastructureText.setPosition(streetPosition.x+10, streetPosition.y + 75);
     }
     else { // Right side (31 to 39)
-        estateText.setPosition(BOARD_WIDTH - SQUARE_SIZE - 60, (curr_position - 30) * SQUARE_SIZE + 5 * (owner->getID() + 1));
+        InfrastructureText.setPosition(streetPosition.x-70, streetPosition.y+35);
     }
-    window.draw(estateText);
-
+    window.draw(InfrastructureText);
 }
 
 

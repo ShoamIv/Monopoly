@@ -10,7 +10,7 @@
  * @class Player
  * @brief Represents a player in the Monopoly game.
  *
- * The Player class manages all player-specific details such as their name, color,
+ * The Player class managesll player-specific details such as their name, color,
  * current position on the board, cash, jail status, owned estates, and dice rolls.
  * It also handles player interactions like moving, paying rent, and collecting
  * money from bankrupt players.
@@ -32,14 +32,14 @@ const float R = 10.0f;               ///< Radius for the player's token.
  * @brief Enum representing the available colors for player tokens.
  */
 enum class PlayerColor {
-    Red,        ///< Red player token.
-    Blue,       ///< Blue player token.
-    Green,      ///< Green player token.
-    Yellow,     ///< Yellow player token.
-    Orange,     ///< Orange player token.
-    Purple,     ///< Purple player token.
-    Brown,      ///< Brown player token.
-    Magenta     ///< Magenta player token.
+    Red,        /// Red player token.
+    Blue,       /// Blue player token.
+    Green,      /// Green player token.
+    Yellow,     /// Yellow player token.
+    Orange,     /// Orange player token.
+    Purple,     /// Purple player token.
+    Brown,      /// Brown player token.
+    Magenta     /// Magenta player token.
 };
 
 class Player {
@@ -53,7 +53,6 @@ private:
     int dice = 0;                      ///< Result of the player's most recent dice roll.
     int NumOfRailRoad = 0;             ///< Number of Railroads owned by the player.
     int getOutFromJail = 0;            ///< Number of Get Out of Jail Free cards owned.
-    int DoubleCount = 0;               ///< Counts the number of consecutive double dice rolls.
     bool ChanceDraw = false;           ///< Flag to check if player drew a Chance card.
     bool Bankruptcy = false;           ///< Flag to check if player is bankrupt.
     std::vector<Estate*> Estates;      ///< List of estates owned by the player.
@@ -227,10 +226,6 @@ public:
      */
     void MoveTo(const std::string& location, sf::RenderWindow &window);
 
-    /**
-     * @brief Resets the count of consecutive double dice rolls for the player.
-     */
-    void resetRepeatDouble();
 
     /**
      * @brief Collects assets from a player who has gone bankrupt.
