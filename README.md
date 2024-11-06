@@ -1,4 +1,3 @@
-Here’s a translated and structured README based on your description:
 
 ---
 
