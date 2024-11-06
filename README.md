@@ -1,89 +1,55 @@
-פרויקט זה הוא מימוש של משחק המונופול באמצעות ספריית הגרפיקה SFML ב-C++. המשחק מאפשר לשחקנים לנוע על לוח המשחק, לרכוש נכסים, לשלם שכר דירה, וביצוע פעולות אחרות במסגרת חוקי המשחק.
+Here’s a translated and structured README based on your description:
 
-תכונות הפרויקט
-לוח משחק דינמי: מימוש של לוח משחק עם ערים ורחובות בישראל כמו קריית אתא, אריאל, נתניה, חיפה, ירושלים, תל אביב, וסביון.
-תנועת שחקנים: שחקנים יכולים להתקדם בהתאם להטלת קובייה ולהתבצע פעולות כמו קנייה של בתים ומלונות.
-ניהול כסף ושכירות: שחקנים מרוויחים כסף ועוברים בין רחובות ומשלמים שכירות בהתאם למיקומם בלוח.
-ממשק גרפי: התקשורת עם השחקן מתבצעת דרך ממשק גרפי (GUI) עם חלונות, כפתורים והודעות.
-כרטיסי הזדמנות והפתעות: מימוש כרטיסי "צ'אנס" שמשפיעים על המשחק בדרכים בלתי צפויות.
-כלא ומס: טיפול בכלא, מיסים ו"חנייה חופשית" בהתאם לחוקי המשחק
-מבנה קוד
-הפרויקט מחולק למספר מחלקות עיקריות:
+---
 
+# Monopoly Game Project
 
- מחלקת GameFlow:
- המחלקה האחראית על שטף המשחקת ניהול תורים, תזוזת שחקנים, בדיקת סטטוס המשחק.
- בנוסף מקיימת אינטרקציה שוטפת עם ממשחק הGUI ומכילה את מתודת updateGUI הדואגת לעדכן לאחר כל הטלה במשחק את מצב הלוח העדכני.
- בנוסף מחלקה זו אחראית על קבלת מספר השחקנים, התאמת צבע ייחודי לכל שחקן בעזרת ממשק הGUI
+This project is an implementation of the Monopoly game using the SFML graphics library in C++. It allows players to move around the board, purchase properties, pay rent, and perform other actions according to the game rules.
 
+## Project Features
 
-מחלקת Square: 
-מחלקת הבסיס לריבועי הלוח (כולל רחובות נכסים ומשבצות מיוחדות כל המחלקות הנ"ל ממששות את המחלקה.).
+- **Dynamic Game Board**: Implements a game board with cities and streets from Israel, such as Kiryat Ata, Ariel, Netanya, Haifa, Jerusalem, Tel Aviv, and Savion.
+- **Player Movement**: Players move based on dice rolls and can perform actions like buying houses and hotels.
+- **Money and Rent Management**: Players earn money and pay rent based on their position on the board.
+- **Graphical Interface**: Communication with players is via a GUI with windows, buttons, and messages.
+- **Chance and Surprise Cards**: "Chance" cards add unexpected elements to the game.
+- **Jail and Tax Squares**: Handles jail, taxes, and "Free Parking" according to the game rules.
 
+## Project Structure
 
-מחלקת SpecialSquare: 
-מחלקה המייצגת ריבועים מיוחדים כמו כלא, מס, הזדמנות וחנייה חופשית.
+- **GameFlow Class**: Manages game flow, player turns, and status. It interacts with the GUI, updating the board after each turn.
+- **Square Class**: Base class for board squares (including streets, properties, and special squares).
+- **SpecialSquare Class**: Represents special squares like jail, tax, chance, and free parking.
+- **Player Class**: Manages each player's data, such as color, name, ID, and properties. It also interfaces with the GUI for displaying the player's position, assets, and available cash.
+- **Board Class**: Singleton class responsible for creating and displaying the game board in the GUI.
+- **Button Class**: Creates clickable buttons used by other classes for player interaction.
+- **Estate Class**: Abstract class representing purchasable assets.
+- **Street Class**: Represents a buyable street, allowing interaction for house or hotel upgrades via the GUI.
+- **Infrastructure Class**: Represents purchasable infrastructure (like utilities and railroads).
 
+### Class Hierarchy
 
-מחלקת Player:
-מחלקת השחקן דואגת לכל הפעולות ומידע אשר שחקן מחזיק. מחלקה זו מחזיקה את מידע הבסיס אשר כל שחקן מחזיק כגון צבע, שם ומספר זיהוי.
-בנוסף מחלקה זו מחזיקה מידע אשר השחקן סופח אליו במהלך משחק, רשימת נכסים(רחובות ותשתיות), רשימת בתים, תשתיות אשר השחקן מחזיק בהם וכרטיסים מיוחדים שיש לשחקן.
-המחלקה אחראית גם לממשק ה GUI המקיים אינטרקציה עם Player. כלומר: המחלקה אחראית ליצירה ושינוע על הלוח של הPlayer marker(הסימון של השחקן בלוח), צביעת רחובות
-ובתים ובמקרה הצורך וציור כמות הכסף אשר קיים לשחקן בכל עת.
+- All board-related classes inherit from **Square**:
+  - **SpecialSquare** and **Estate** directly inherit from **Square**.
+  - **Street** and **Infrastructure** inherit from **Estate**.
 
+- The `GameFlow` class encapsulates all others to manage the game’s operation seamlessly.
 
-מחלקת Board:
-אחראית על יצירת לוח המשחק, וייצוגו ב GUI . מחלקה Singleton כך שיכול להיות רק Board יחיד בכל עת.
+## Core Method
 
+- **Action**: Defined in the `Square` class, this method performs specific actions for each square (e.g., going to jail, buying assets, paying rent, and upgrading to hotels).
 
-מחלקת Button:
-מחלקה האחראית על יצירת הכפתור הניתן ללחיצה במהלך המשחק, מחלקות שונות בקוד משתמשות במחלקה זו ליצירת כפתורים לחיצים ואינטרקציה עם המשתמש.
+## Running the Game
 
+When you start the game, you’ll enter the number of players (2-8) through the GUI. Each player takes turns rolling dice and moving around the board. Actions required based on their positions, like purchasing properties, paying rent, or drawing Chance cards, are shown as messages. The game ends when only one player remains financially solvent, or one player reaches +4000 units of currency.
 
-מחלקת Estate:
-מחלקה אבסטרקטית המייצגת את הנכסים במשחק הניתנים לקנייה.
+### GUI Guide
 
+- On starting the game, follow instructions to add players. Each player’s name and color are input in sequence.
+- The GUI displays player cash and assets on the board. To view player estates, click "VIEW Estates."
+- To start a turn, click "Roll Dice." Follow prompts for required actions based on the square landed.
+- Timers appear with some messages to allow reading time. When rolling dice, wait for the message to clear before proceeding.
+- Winning is automatically detected, ending the game when applicable.
 
-מחלקת Street:
-מחלקה המייצגת  רחוב הניתן לקנייה מממשת את Estate.
-במחלקה זו בנוסף מתקיימת אינטרקציה עם המשתמש אם ברצונו לבצע שדרוג לבית או מלון. 
-האינטרקציה הנ"ל מתקיימת בGUI.
-
-מחלקת Infrastrction:
-מחלקה המייצגת תשתית הניתנת לקנייה מממשת את Estate: התשתיות הם: חברת חשמל, חברת מים , מסילות רכבת.
-
-הירככית המחלקות:
-באופו כללי, כל המחלקות המייצגות משבצת יורשות ממחלקת Square. ההירכיה כלהלן:
-מחלקות: SpecialSquare, Estate יורשות באופן ישיר ממחלקת Square.
-מחלקות: Street, Infractsture יורשות מ Estate.
-
-מחלקת GameFlow נעזרת בשאר המחלקות על מנת לנהל את המשחק באופן שוטף, על ידי מחלקה זו נשמרת אנקפסולציה של המחלקות האחרות.
-
-מתודה מרכזית במשחק: action, הוגדרה במחלקת Square ולכן כל המחלקות שממשות את Square ממשמשות אותה.
-
-מתודה זו מבצעת פעולה לכל משבצת במשחק, למשל הכנסה לכלא, קניית נכסים, תשלום שכירות וקניית מלונות ובתים.
-
-כך, ממחלקת GameFlow, בעת התמודדות עם משבצת מסוימת רק קריאת Action מתקיימת במחלקה זו.
-
-הפעלת המשחק
-
-בעת הפעלת המשחק, תתבקש להזין את מספר השחקנים (בין 2 ל-8) דרך הממשק הגרפי.
-כל שחקן יקבל תור משלו לזרוק את הקוביות ולנוע על הלוח.
-בעת מעבר בריבועים שונים, תוצג הודעה על הפעולה הנדרשת, כמו קנייה של רחוב, תשלום שכר דירה, או משיכת כרטיס צ'אנס.
-המשחק נמשך עד ששחקן אחד נשאר עם כסף ויתר השחקנים פשטו רגל או לחלופין קיים שחקן המחזיק +4000 שקל.
-
-מדריך GUI:
-בתחילת המשחק יופיע מסך היפרט את השלבים להכנסת כל השחקנים למשחק אנא עקבו אחר ההוראות.
-הזנת השחקנים תבוצע בפורמט:
-שם: הכניסו שם, לחצו Enter.
-צבע: הכניסו צבע, לחצו Enter. וכך הלאה לכל שחקן.
-בעת תחילת המשחק, הכסף של השחקנים יופיע בלוח.
-כמו כן אם תרצו לעיין בנכסים של השחקנים אנא לחצו על VIEW Estates.
-על מנת להתחיל לשחק, אנא לחצו על Roll Dice, בהתאם למשבצת שלכם, תדרשו לבצע פעולות מסוימות, הממשק מתקיים
-אך ורק בעזרת לחיצת העכבר על מקשים Yes,No,Pay,Roll היופיעו בעת הצורך.
-בחלק מההודעות קיים טיימר על מנת להעניק לכם מספיק זמן לקרוא את ההודעה.
-אנא בעת זריקת קוביות (Roll dice) המתינו שההודעה תעבור מהמסך.
-בדיקת מנצח מתבצעת באופן אוטומטי והפסקת המשחק עקב כך.
-בהצלחה!
-
+Good luck!
 
